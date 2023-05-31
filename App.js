@@ -1,107 +1,176 @@
+import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import RNFS from "react-native-fs";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Favourites from "./screens/Favourites";
+import PrivateGallary from "./screens/PrivateGallary";
+import Downloads from "./screens/Downloads";
+import Icon from "react-native-vector-icons/FontAwesome";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { GlobalStyles } from "./constants/Colors";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
-// import * as FileSystem from "expo-file-system";
-import { NativeModules } from "react-native";
+import { Alert } from "react-native";
+import Images from "./screens/Images";
+import Videos from "./screens/Videos";
+import { createStackNavigator } from "@react-navigation/stack";
+import ImageSlides from "./components/ImageSlides";
 
-export default function App() {
-  let url =
-    "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia%2Fcom.whatsapp%2FWhatsApp%2FMedia%2F.Statuses";
+const BottomTabs = createBottomTabNavigator();
+const TopTabs = createMaterialTopTabNavigator();
+const Stack = createStackNavigator();
+let url =
+  "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia%2Fcom.whatsapp%2FWhatsApp%2FMedia%2F.Statuses";
 
-  // url =
-  // "content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia%2Fcom.whatsapp%2FWhatsApp%2FMedia%2F.Statuses";
-  // url =
-  //   "content://com.android.externalstorage.documents/tree/primary%3AWhatsApp%2FMedia%2F.Statuses";
-  //url ="content://com.android.externalstorage.documents/tree/primary%3AAndroid%2Fmedia%2Fcom.whatsapp%2FWhatsApp%2FMedia%2F.Statuses";
-  const GetDirectoryPermission = async () => {
-    try {
-      const permissionRes =
-        await StorageAccessFramework.requestDirectoryPermissionsAsync(url);
-      const folderContents = await StorageAccessFramework.readDirectoryAsync(
-        url
-      );
-    
-      const result = folderContents;
-      console.log(result);
-      const fileUri = `${RNFS.DocumentDirectoryPath}/images/test.jpg`;
-      console.log(fileUri);
-      // const res = await FileSystem.copyAsync({ from: result[1], to: fileUri });
-      const s = result.map((path) => saveFile(path));
-      // console.log(res);
-      return permissionRes.granted;
-    } catch (err) {
-      console.warn(err);
+const GetDirectoryPermission = async () => {
+  try {
+    const statusFolder = await AsyncStorage.getItem("@statusFolder");
+    if (
+      statusFolder != null &&
+      statusFolder != undefined &&
+      statusFolder === url
+    ) {
+      return true;
     }
-  };
-
-  const saveFile = async (uri) => {
-    //const fileUri = uri.replace("content://", ""); // Removing 'content://' from the URI
-
-    // Creating the destination file path
-    console.log(uri);
-    const extension = uri.substr(uri.lastIndexOf("%2F") + 1).split(".")[1];
-    console.log("extension", extension);
-    if (extension === "jpg" || extension === "nomedia") {
+    const permissionRes =
+      await StorageAccessFramework.requestDirectoryPermissionsAsync(url);
+    if (!permissionRes.directoryUri.includes(url)) {
       return;
     }
-
-    const destPath = `${RNFS.PicturesDirectoryPath}/SaveStatus/${
-      Math.random() + Math.random()
-    }}.${extension}`;
-
-    console.log("destPath", destPath);
-    // Checking if the destination directory exists, and creating it if not
-    const dirExists = await RNFS.exists(
-      RNFS.PicturesDirectoryPath + "/SaveStatus"
-    );
-    if (!dirExists) {
-      await RNFS.mkdir(RNFS.PicturesDirectoryPath + "/SaveStatus");
+    if (permissionRes.granted) {
+      await AsyncStorage.setItem(
+        "@statusFolder",
+        permissionRes.directoryUri.toString()
+      );
     }
+    return permissionRes.granted;
+  } catch (err) {
+    console.warn(err);
+  }
+};
 
-    console.log("copying file");
-    // Copying the file to the destination path
-
-    await RNFS.copyFile(uri, destPath);
-    RNFS.scanFile(destPath);
-    // Triggering a media scan on the saved file
-    console.log("File saved successfully!");
-  };
-  useEffect(() => {
-    const askPermission = async () => {
-      const permissionRes = await GetDirectoryPermission();
-      // if (permissionRes) {
-      //   const folderContents = await StorageAccessFramework.readDirectoryAsync(
-      //     url
-      //   );
-      //   const result = folderContents.filter((url) =>
-      //     /\.(jpe?g|png|webp)$/.test(url)
-      //   );
-      //   setimageURIs(result);
-
-      //   const directoryName = "MyImages";
-      //   const fileName = "myImage.jpg";
-
-      //   saveImageFromContentUri(folderContents[3], directoryName, fileName);
-      //   //  console.log(rep);
-      // }
-    };
-    askPermission();
-  }, [url]);
+function TopTabNavigator() {
   return (
-    <View style={styles.container}>
-      <Text>Hellow Worldsa</Text>
-      <StatusBar style="auto" />
-    </View>
+    <TopTabs.Navigator>
+      <TopTabs.Screen name="Images" component={Images} />
+      <TopTabs.Screen name="Videos" component={Videos} />
+    </TopTabs.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function BottomTabNavigator() {
+  return (
+    <BottomTabs.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
+        headerTintColor: "white",
+        tabBarStyle: {
+          backgroundColor: GlobalStyles.colors.primary500,
+          height: 80,
+        },
+        tabBarLabelStyle: {
+          fontSize: 13,
+          alignItems: "center",
+          justifyContent: "center",
+          marginVertical: 4,
+        },
+        tabBarActiveTintColor: "#0fe9cf",
+        tabBarInactiveTintColor: GlobalStyles.colors.white,
+      }}
+    >
+      <BottomTabs.Screen
+        name="StatusSave"
+        component={TopTabNavigator}
+        options={{
+          title: "Save Status",
+          tabBarLabel: "Save Status",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Icon
+              name="download"
+              color={focused ? "#0fe9cf" : color}
+              size={24}
+            />
+          ),
+        }}
+      ></BottomTabs.Screen>
+      <BottomTabs.Screen
+        name="Downloads"
+        component={Downloads}
+        options={{
+          title: "Downloads",
+          tabBarLabel: "Downloads",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Icon
+              name="image"
+              color={focused ? "#0fe9cf" : color}
+              size={size}
+            />
+          ),
+        }}
+      ></BottomTabs.Screen>
+      <BottomTabs.Screen
+        name="Favourites"
+        component={Favourites}
+        options={{
+          title: "Favourites",
+          tabBarLabel: "Favourites",
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialIcon
+              name="favorite"
+              color={focused ? "#0fe9cf" : color}
+              size={size}
+            />
+          ),
+        }}
+      ></BottomTabs.Screen>
+      <BottomTabs.Screen
+        name="PrivateGallary"
+        component={PrivateGallary}
+        options={{
+          title: "Private Gallary",
+          tabBarLabel: "Private Gallary",
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialIcon
+              name="security"
+              color={focused ? "#0fe9cf" : color}
+              size={size}
+            />
+          ),
+        }}
+      ></BottomTabs.Screen>
+    </BottomTabs.Navigator>
+  );
+}
+
+export default function App() {
+  useEffect(() => {
+    const askUserPermission = async () => {
+      const permissionRes = await GetDirectoryPermission();
+      if (!permissionRes) {
+        Alert.alert("Permission Denied", "Provide Access to External Storage");
+      }
+    };
+    askUserPermission();
+  }, [url]);
+
+  return (
+    <>
+      <StatusBar style="auto" />
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="StatusSaveTabs"
+            component={BottomTabNavigator}
+            options={{ headerShown: false }}
+          ></Stack.Screen>
+          <Stack.Screen
+            name="ImageSlides"
+            component={ImageSlides}
+          ></Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
+  );
+}
