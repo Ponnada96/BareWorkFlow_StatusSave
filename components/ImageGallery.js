@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
+import { Pressable } from "react-native";
 import {
   StyleSheet,
   Image,
@@ -11,26 +12,28 @@ import {
 function ImageGallery({ imageURIs }) {
   const navigation = useNavigation();
 
-  const RenderImage = ({ item,index }) => {
+  const RenderImage = ({ item, index }) => {
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          onPress={openGallery.bind(this,index)}
-          style={{ flex: 1 }}
-          activeOpacity={0.6}
+        <Pressable
+          onPress={openGallery.bind(this, index)}
+          style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
         >
           <Image
             source={{ uri: item }}
             style={styles.image}
             resizeMode="cover"
           />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   };
 
   const openGallery = (index) => {
-    navigation.navigate("ImageSlides", { imageURIs: imageURIs, selectdImgIndex: index });
+    navigation.navigate("ImageSlides", {
+      imageURIs: imageURIs,
+      selectdImgIndex: index,
+    });
   };
 
   return (
@@ -54,12 +57,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 10,
     borderRadius: 20,
-    overflow: "hidden",
-    backfaceVisibility: "hidden",
   },
   image: {
     flex: 1,
-    width: null,
     height: 200,
+    borderRadius: 20,
+  },
+  pressed: {
+    opacity: 0.75,
+  },
+  flex: {
+    flex: 1,
   },
 });

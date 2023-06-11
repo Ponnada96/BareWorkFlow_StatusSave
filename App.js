@@ -168,6 +168,7 @@ export default function App() {
           <Stack.Screen
             name="ImageSlides"
             component={ImageSlides}
+            options={{ title: "Images" }}
           ></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>

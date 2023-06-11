@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
 import ImageGallery from "../components/ImageGallery";
+import VideosGallery from "../components/VideosGallery";
 
 function Videos() {
   const [videoUris, setVideoURIs] = useState([]);
   const isFocused = useIsFocused();
-
   useEffect(() => {
+    console.log(isFocused);
     const getVideos = async () => {
       if (isFocused) {
         const statusFolder = await AsyncStorage.getItem("@statusFolder");
@@ -26,7 +27,11 @@ function Videos() {
 
   return (
     <View>
-      <ImageGallery imageURIs={videoUris} />
+      {/* <ImageGallery imageURIs={videoUris} /> */}
+      <VideosGallery videoURIs={videoUris}/>
+      {/* {videoUris.length > 0 && (
+        <VideoPlayerComp videoUri={[videoUris[0] ]} />
+      )} */}
     </View>
   );
 }
