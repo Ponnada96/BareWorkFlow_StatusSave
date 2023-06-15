@@ -1,94 +1,82 @@
 import { StyleSheet, Dimensions, ToastAndroid } from "react-native";
 import Video from "react-native-video";
 import InfoComponent from "./InfoComponent";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import HeaderBtns from "./HeaderBtns";
 import * as RNFS from "react-native-fs";
+import { useIsFocused } from "@react-navigation/native";
+import {
+  displayFileSavedToastMsg,
+  SaveFile,
+  getFileDestPath,
+} from "./Common/Utils";
 
 const screenHeight = Dimensions.get("window").height;
 
 function VideoPlayerComp({ route, navigation }) {
   const videoUri = route.params?.videoUri;
   const [isFileDownload, setFileDownload] = useState(false);
-
-  function saveAll() {
-    console.log("save All");
-  }
-
-  function getFileDestPath() {
-    const fileName = videoUri.substr(videoUri.lastIndexOf("%2F") + 1);
-    const dirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
-    const destPath = `${dirPath}/${fileName}`;
-    return { dirPath, destPath };
-  }
+  const [showVideo, setIsShowVideo] = useState(true);
+  const isFocused = useIsFocused();
 
   async function saveVideo() {
-    const { dirPath, destPath } = getFileDestPath();
-    if (await RNFS.exists(destPath)) {
-      return;
-    }
-    const isDirExists = await RNFS.exists(dirPath);
-    if (!isDirExists) {
-      await RNFS.mkdir(dirPath);
-    }
-    await RNFS.copyFile(videoUri, destPath);
-    RNFS.scanFile(destPath);
-    setFileDownload(true);
+    await SaveFile(videoUri);
     displayFileSavedToastMsg("Video Saved");
+    setFileDownload(true);
   }
 
-  function displayFileSavedToastMsg(text) {
-    ToastAndroid.showWithGravityAndOffset(
-      text,
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM,
-      150,
-      50
-    );
-  }
-
-  
-  useLayoutEffect(() => {
+  useEffect(() => {
     async function verifyFileExistense() {
-      const { destPath } = getFileDestPath();
+      const { destPath } = getFileDestPath(videoUri);
       const isFileExists = await RNFS.exists(destPath);
       setFileDownload(isFileExists);
-      console.log("isFileExists", isFileExists);
     }
     verifyFileExistense();
   }, []);
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <HeaderBtns
-          showSaveAllBtn={false}
-          saveAllHandler={saveAll}
-          saveImgByIndexHandler={saveVideo}
-          isFileDownload={isFileDownload}
-          displayInfoHandler={displayFileSavedToastMsg}
-        />
-      ),
+      headerRight: () =>
+        isFocused && (
+          <HeaderBtns
+            showSaveAllBtn={false}
+            saveAllHandler={null}
+            saveImgByIndexHandler={saveVideo}
+            isFileDownload={isFileDownload}
+            displayInfoHandler={displayFileSavedToastMsg}
+          />
+        ),
     });
   }, [isFileDownload]);
 
+  useEffect(() => {
+    if (!isFocused) {
+      setIsShowVideo(false);
+    }
+  }, [isFocused]);
 
   if (videoUri === undefined) {
     return <InfoComponent>Unable to play video!</InfoComponent>;
   }
 
   return (
-    <Video
-      controls={true}
-      source={{ uri: videoUri }}
-      style={styles.fullScreen}
-      resizeMode="contain"
-      onEnd={() => {
-        console.log("Completed!");
-      }}
-    ></Video>
+    showVideo && (
+      <Video
+        controls={true}
+        source={{ uri: videoUri }}
+        style={styles.fullScreen}
+        resizeMode="contain"
+        onEnd={() => {
+          console.log("Completed!");
+        }}
+        ref={(ref) => {
+          this.player = ref;
+        }}
+      ></Video>
+    )
   );
 }
+
 export default VideoPlayerComp;
 
 var styles = StyleSheet.create({

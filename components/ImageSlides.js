@@ -5,12 +5,17 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ToastAndroid,
 } from "react-native";
 import { GlobalStyles } from "../constants/Colors";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as RNFS from "react-native-fs";
 import HeaderBtns from "./HeaderBtns";
+import {
+  SaveAllFiles,
+  SaveFile,
+  getFileDestPath,
+  displayFileSavedToastMsg,
+} from "./Common/Utils";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -29,49 +34,15 @@ function ImageSlides({ route, navigation }) {
     bottomRef.current.scrollToIndex({ animated: true, index: index });
   }
 
-  function getFileDestPath(itemIndex) {
-    const fileUri = imageURIs[itemIndex];
-    const fileName = fileUri.substr(fileUri.lastIndexOf("%2F") + 1);
-    const dirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
-    const destPath = `${dirPath}/${fileName}`;
-    return { dirPath, destPath, fileUri };
-  }
-
-  function displayFileSavedToastMsg(text) {
-    ToastAndroid.showWithGravityAndOffset(
-      text,
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM,
-      150,
-      50
-    );
-  }
-
-  async function SaveImage(itemIndex) {
-    const { dirPath, destPath, fileUri } = getFileDestPath(itemIndex);
-    if (await RNFS.exists(destPath)) {
-      return;
-    }
-    const isDirExists = await RNFS.exists(dirPath);
-    if (!isDirExists) {
-      await RNFS.mkdir(dirPath);
-    }
-    await RNFS.copyFile(fileUri, destPath);
-    RNFS.scanFile(destPath);
-  }
-
   async function saveImageByIndex() {
-    await SaveImage(selectedIndex);
+    await SaveFile(imageURIs[selectedIndex]);
     setFileDownload(true);
     displayFileSavedToastMsg("File Saved");
   }
 
   function saveAll() {
-    imageURIs.map(async (_, index) => {
-      await SaveImage(index);
-    });
+    SaveAllFiles(imageURIs);
     setFileDownload(true);
-    displayFileSavedToastMsg("Saved All Successfully!");
   }
 
   useLayoutEffect(() => {
@@ -81,7 +52,7 @@ function ImageSlides({ route, navigation }) {
 
   useLayoutEffect(() => {
     async function VerifyFileExistense() {
-      const { destPath } = getFileDestPath(selectedIndex);
+      const { destPath } = getFileDestPath(imageURIs[selectedIndex]);
       const isFileExists = await RNFS.exists(destPath);
       setFileDownload(isFileExists);
     }

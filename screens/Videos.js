@@ -10,7 +10,6 @@ function Videos() {
   const [videoUris, setVideoURIs] = useState([]);
   const isFocused = useIsFocused();
   useEffect(() => {
-    console.log(isFocused);
     const getVideos = async () => {
       if (isFocused) {
         const statusFolder = await AsyncStorage.getItem("@statusFolder");

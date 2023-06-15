@@ -22,23 +22,26 @@ function HeaderBtns({
           Save All
         </Button>
       )}
-      {isFileDownload ? (
-        <IconButton
-          name="check"
-          size={24}
-          color="#b62323"
-          onPress={displayInfoHandler.bind(this, "File Already Saved!")}
-          iconType={IconTypes.Entypo}
-        ></IconButton>
-      ) : (
-        <IconButton
-          name="download"
-          size={24}
-          color="green"
-          onPress={saveImgByIndexHandler}
-          iconType={IconTypes.Entypo}
-        ></IconButton>
-      )}
+
+      {!!saveImgByIndexHandler ? (
+        isFileDownload ? (
+          <IconButton
+            name="check"
+            size={24}
+            color="#b62323"
+            onPress={displayInfoHandler.bind(this, "File Already Saved!")}
+            iconType={IconTypes.Entypo}
+          ></IconButton>
+        ) : (
+          <IconButton
+            name="download"
+            size={24}
+            color="green"
+            onPress={saveImgByIndexHandler}
+            iconType={IconTypes.Entypo}
+          ></IconButton>
+        )
+      ) : null}
     </View>
   );
 }

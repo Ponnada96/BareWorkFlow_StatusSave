@@ -1,16 +1,28 @@
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Pressable } from "react-native";
-import {
-  StyleSheet,
-  Image,
-  FlatList,
-  View,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Image, FlatList, View } from "react-native";
+import { useEffect } from "react";
+import HeaderBtns from "./HeaderBtns";
+import { displayFileSavedToastMsg, SaveAllFiles } from "./Common/Utils";
 
 function ImageGallery({ imageURIs }) {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    navigation.getParent().setOptions({
+      headerRight: () => (
+        <HeaderBtns
+          showSaveAllBtn={true}
+          saveAllHandler={SaveAllFiles.bind(this, imageURIs)}
+          saveImgByIndexHandler={null}
+          isFileDownload={false}
+          displayInfoHandler={displayFileSavedToastMsg}
+        />
+      ),
+    });
+  }, [imageURIs, isFocused]);
 
   const RenderImage = ({ item, index }) => {
     return (

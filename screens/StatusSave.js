@@ -46,7 +46,6 @@ function StatusSave() {
         if (permissionRes) {
           const folderContents =
             await StorageAccessFramework.readDirectoryAsync(url);
-          // console.log(folderContents);
           const images = folderContents.filter((url) =>
             /\.(jpe?g|png|webp)$/.test(url)
           );

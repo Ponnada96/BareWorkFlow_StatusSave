@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderRadius: 8,
     padding: 6,
-    backgroundColor: GlobalStyles.colors.primary500,
+    backgroundColor: "#40a79b",
   },
   flat: {
     backgroundColor: "transparent",

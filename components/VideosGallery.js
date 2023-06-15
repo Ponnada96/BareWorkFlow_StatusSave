@@ -1,15 +1,33 @@
 import { FlatList } from "react-native";
-import { View, StyleSheet, Dimensions, Image, Text } from "react-native";
+import { View, StyleSheet, Dimensions, Image } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 import InfoComponent from "./InfoComponent";
 import { GlobalStyles } from "../constants/Colors";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
+import HeaderBtns from "./HeaderBtns";
+import { SaveAllFiles, displayFileSavedToastMsg } from "./Common/Utils";
 
 const height = Dimensions.get("window").height;
 
 function VideosGallery({ videoURIs }) {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    navigation.getParent().setOptions({
+      headerRight: () => (
+        <HeaderBtns
+          showSaveAllBtn={true}
+          saveAllHandler={SaveAllFiles.bind(this, videoURIs)}
+          saveImgByIndexHandler={null}
+          isFileDownload={false}
+          displayInfoHandler={displayFileSavedToastMsg}
+        />
+      ),
+    });
+  }, [videoURIs, isFocused]);
 
   const renderVideoThumbnail = ({ item, _ }) => {
     return (
@@ -37,7 +55,6 @@ function VideosGallery({ videoURIs }) {
   };
 
   const play = (uri) => {
-    console.log("play", uri);
     navigation.navigate("VideoPlayer", { videoUri: uri });
   };
 
