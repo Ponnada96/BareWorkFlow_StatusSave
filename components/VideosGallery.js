@@ -4,45 +4,46 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 import InfoComponent from "./InfoComponent";
 import { GlobalStyles } from "../constants/Colors";
+import { useNavigation } from "@react-navigation/native";
 
 const height = Dimensions.get("window").height;
-const width = Dimensions.get("window").width;
-console.log(Dimensions.get("window").height / 4);
-console.log(Dimensions.get("screen").height);
-
-const renderVideoThumbnail = ({ item, index }) => {
-  return (
-    <Pressable
-      onPress={play}
-      style={({ pressed }) => pressed && styles.pressed}
-    >
-      <View style={styles.container}>
-        <Image source={{ uri: item }} style={styles.video}></Image>
-        <View style={styles.button}>
-          <Pressable
-            onPress={play}
-            style={({ pressed }) => pressed && styles.pressed}
-          >
-            <FontAwesome
-              name="play-circle-o"
-              color={GlobalStyles.colors.primary1000}
-              size={50}
-            />
-          </Pressable>
-        </View>
-      </View>
-    </Pressable>
-  );
-};
-
-const play = () => {
-  console.log("play");
-};
 
 function VideosGallery({ videoURIs }) {
+  const navigation = useNavigation();
+
+  const renderVideoThumbnail = ({ item, _ }) => {
+    return (
+      <Pressable
+        onPress={play.bind(this, item)}
+        style={({ pressed }) => pressed && styles.pressed}
+      >
+        <View style={styles.container}>
+          <Image source={{ uri: item }} style={styles.video}></Image>
+          <View style={styles.button}>
+            <Pressable
+              onPress={play.bind(this, item)}
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              <FontAwesome
+                name="play-circle-o"
+                color={GlobalStyles.colors.primary1000}
+                size={50}
+              />
+            </Pressable>
+          </View>
+        </View>
+      </Pressable>
+    );
+  };
+
+  const play = (uri) => {
+    console.log("play", uri);
+    navigation.navigate("VideoPlayer", { videoUri: uri });
+  };
+
   if (videoURIs.length > 0) {
     return (
-      <View style={{ backgroundColor: GlobalStyles.colors.primary900 }}>
+      <View style={styles.mainConatiner}>
         <FlatList
           data={videoURIs}
           renderItem={renderVideoThumbnail}
@@ -58,6 +59,9 @@ function VideosGallery({ videoURIs }) {
 export default VideosGallery;
 
 const styles = StyleSheet.create({
+  mainConatiner: {
+    backgroundColor: GlobalStyles.colors.primary900,
+  },
   container: {
     height: height / 4,
     margin: 8,
@@ -65,8 +69,6 @@ const styles = StyleSheet.create({
     elevation: 8,
     opacity: 0.93,
   },
-  itemContainer: {},
-
   video: {
     borderRadius: 10,
     flex: 1,

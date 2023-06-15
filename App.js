@@ -17,6 +17,7 @@ import Images from "./screens/Images";
 import Videos from "./screens/Videos";
 import { createStackNavigator } from "@react-navigation/stack";
 import ImageSlides from "./components/ImageSlides";
+import VideoPlayerComp from "./components/VideoPlayerComp";
 
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -169,6 +170,11 @@ export default function App() {
             name="ImageSlides"
             component={ImageSlides}
             options={{ title: "Images" }}
+          ></Stack.Screen>
+          <Stack.Screen
+            name="VideoPlayer"
+            component={VideoPlayerComp}
+            options={{ title: "Video" }}
           ></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>

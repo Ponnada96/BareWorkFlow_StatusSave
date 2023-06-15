@@ -9,10 +9,8 @@ import {
 } from "react-native";
 import { GlobalStyles } from "../constants/Colors";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import IconButton from "../UI/IconButton";
-import { IconTypes } from "../constants/IconTypes";
 import * as RNFS from "react-native-fs";
-import Button from "../UI/Button";
+import HeaderBtns from "./HeaderBtns";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -93,36 +91,13 @@ function ImageSlides({ route, navigation }) {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <View style={styles.btnContainer}>
-          <Button
-            style={styles.btn}
-            onPress={saveAll}
-            showIcon={true}
-            iconName="download"
-          >
-            Save All
-          </Button>
-          {isFileDownload ? (
-            <IconButton
-              name="check"
-              size={24}
-              color="#b62323"
-              onPress={displayFileSavedToastMsg.bind(
-                this,
-                "File Already Saved!"
-              )}
-              iconType={IconTypes.Entypo}
-            ></IconButton>
-          ) : (
-            <IconButton
-              name="download"
-              size={24}
-              color="green"
-              onPress={saveImageByIndex}
-              iconType={IconTypes.Entypo}
-            ></IconButton>
-          )}
-        </View>
+        <HeaderBtns
+          saveAllHandler={saveAll}
+          showSaveAllBtn={true}
+          saveImgByIndexHandler={saveImageByIndex}
+          isFileDownload={isFileDownload}
+          displayInfoHandler={displayFileSavedToastMsg}
+        />
       ),
     });
   }, [selectedIndex, isFileDownload]);
