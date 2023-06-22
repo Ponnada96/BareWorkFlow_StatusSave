@@ -5,6 +5,7 @@ import { StyleSheet, Image, FlatList, View } from "react-native";
 import { useEffect } from "react";
 import HeaderBtns from "./HeaderBtns";
 import { displayFileSavedToastMsg, SaveAllFiles } from "./Common/Utils";
+import InfoComponent from "./InfoComponent";
 
 function ImageGallery({ imageURIs }) {
   const navigation = useNavigation();
@@ -25,20 +26,25 @@ function ImageGallery({ imageURIs }) {
   }, [imageURIs, isFocused]);
 
   const RenderImage = ({ item, index }) => {
-    return (
-      <View style={styles.container}>
-        <Pressable
-          onPress={openGallery.bind(this, index)}
-          style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
-        >
-          <Image
-            source={{ uri: item }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </Pressable>
-      </View>
-    );
+    if (imageURIs.length > 0) {
+      return (
+        <View style={styles.container}>
+          <Pressable
+            onPress={openGallery.bind(this, index)}
+            style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
+          >
+            <Image
+              source={{ uri: item }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          </Pressable>
+        </View>
+      );
+    }
+    else{
+      return <InfoComponent>No Videos</InfoComponent>;
+    }
   };
 
   const openGallery = (index) => {
