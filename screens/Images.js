@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
 import ImageGallery from "../components/ImageGallery";
+import InfoComponent from "../components/InfoComponent";
 
 function Images() {
   const [imageURIs, setimageURIs] = useState([]);
@@ -26,9 +27,12 @@ function Images() {
     getImages();
   }, [isFocused]);
 
+  if (imageURIs.length == 0)
+    return <InfoComponent>No Saved Images</InfoComponent>;
+
   return (
     <View>
-      <ImageGallery imageURIs={imageURIs}  enableHeaderActions={true}/>
+      <ImageGallery imageURIs={imageURIs} enableHeaderActions={true} />
     </View>
   );
 }

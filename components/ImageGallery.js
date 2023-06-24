@@ -4,22 +4,30 @@ import { Pressable } from "react-native";
 import { StyleSheet, Image, FlatList, View } from "react-native";
 import { useEffect } from "react";
 import HeaderBtns from "./HeaderBtns";
-import { displayFileSavedToastMsg, SaveAllFiles } from "./Common/Utils";
-import InfoComponent from "./InfoComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import FavouriteIcon from "../UI/FavouriteIcon";
-import { markFileAsFavourite, getFileNameFromPath } from "./Common/Utils";
+import * as RNFS from "react-native-fs";
+import {
+  getFileNameFromPath,
+  SaveFile,
+  markFileAsFavourite,
+  displayFileSavedToastMsg,
+  SaveAllFiles,
+} from "./Common/Utils";
+import DownloadIcon from "../UI/DownloadIcon";
 
 function ImageGallery({ imageURIs, enableHeaderActions }) {
   const navigation = useNavigation();
   const [favourites, setFavorites] = useState([]);
+  const [savedImages, setSavedImages] = useState([]);
   const isFocused = useIsFocused();
+  const appDirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
 
   useEffect(() => {
     if (isFocused) {
       const getFavourites = async () => {
-        // await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
+        await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
         const data = await AsyncStorage.getItem("favourites");
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
@@ -29,13 +37,30 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
     }
   }, [isFocused]);
 
+  useEffect(() => {
+    if (isFocused) {
+      const getSavedImages = async () => {
+        if (await RNFS.exists(appDirPath)) {
+          const folderContents = (await RNFS.readDir(appDirPath)).map((item) =>
+            getFileNameFromPath(item.path)
+          );
+          const images = folderContents.filter((url) =>
+            /^(?!.*trashed-).*\.(jpe?g|png|webp)$/.test(url)
+          );
+          setSavedImages(images);
+        }
+      };
+      getSavedImages();
+    }
+  }, [isFocused]);
+
   if (enableHeaderActions) {
     useEffect(() => {
       navigation.getParent().setOptions({
         headerRight: () => (
           <HeaderBtns
             showSaveAllBtn={true}
-            saveAllHandler={SaveAllFiles.bind(this, imageURIs)}
+            saveAllHandler={SaveAllFilesHandler.bind(this, imageURIs)}
             saveImgByIndexHandler={null}
             isFileDownload={false}
             displayInfoHandler={displayFileSavedToastMsg}
@@ -52,40 +77,71 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
     updateFavourites();
   }, [favourites]);
 
+  async function saveImage(uri) {
+    await SaveFile(uri);
+    const fileName = getFileNameFromPath(uri);
+    displayFileSavedToastMsg("File Saved");
+    setSavedImages((items) =>
+      items.length === 0 ? [fileName] : [...items, fileName]
+    );
+  }
+
+  function SaveAllFilesHandler(imageURIs) {
+    SaveAllFiles(imageURIs);
+    imageURIs.map((item) => {
+      const fileName = getFileNameFromPath(item);
+      if (!savedImages.includes(fileName)) {
+        setSavedImages((items) => [...items, fileName]);
+      }
+    });
+  }
+
   const RenderImage = ({ item, index }) => {
-    if (imageURIs.length > 0) {
-      return (
-        <View style={styles.container}>
-          <Pressable
-            onPress={openGallery.bind(this, index)}
-            style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
-          >
-            <Image
-              source={{ uri: item }}
-              style={styles.image}
-              resizeMode="cover"
+    return (
+      <View style={styles.container}>
+        <Pressable
+          onPress={openGallery.bind(this, index)}
+          style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
+        >
+          <Image
+            source={{ uri: item }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          <View style={styles.favIconContainer}>
+            <FavouriteIcon
+              iconName={
+                favourites.includes(getFileNameFromPath(item))
+                  ? "favorite"
+                  : "favorite-border"
+              }
+              onPressHandler={markFileAsFavourite.bind(
+                this,
+                item,
+                favourites,
+                setFavorites
+              )}
             />
-            <View style={styles.imageActIconsContainer}>
-              <FavouriteIcon
-                onPressHandler={markFileAsFavourite.bind(
-                  this,
-                  item,
-                  favourites,
-                  setFavorites
-                )}
+          </View>
+          {enableHeaderActions && (
+            <View style={styles.downloadIconContainer}>
+              <DownloadIcon
                 iconName={
-                  favourites.includes(getFileNameFromPath(item))
-                    ? "favorite"
-                    : "favorite-border"
+                  savedImages.includes(getFileNameFromPath(item))
+                    ? "check"
+                    : "file-download"
+                }
+                onPressHandler={
+                  savedImages.includes(getFileNameFromPath(item))
+                    ? displayFileSavedToastMsg.bind(this, "File already saved!")
+                    : saveImage.bind(this, item)
                 }
               />
             </View>
-          </Pressable>
-        </View>
-      );
-    } else {
-      return <InfoComponent>No Videos</InfoComponent>;
-    }
+          )}
+        </Pressable>
+      </View>
+    );
   };
 
   const openGallery = (index) => {
@@ -120,7 +176,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     height: 240,
   },
-  imageActIconsContainer: {
+  favIconContainer: {
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -130,6 +186,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "95%",
     left: "90%",
+    transform: [{ translateX: -22 }, { translateY: -22 }],
+    elevation: 6,
+  },
+  downloadIconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "95%",
+    left: "70%",
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
   },

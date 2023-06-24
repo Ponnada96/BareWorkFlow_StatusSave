@@ -28,6 +28,12 @@ export function getFileDestPath(fileUri) {
   return { dirPath, destPath };
 }
 
+export async function isFileExistsInSystem(fileUri) {
+  const { destPath } = getFileDestPath(fileUri);
+  const isFileExists = await RNFS.exists(destPath);
+  return isFileExists;
+}
+
 export function displayFileSavedToastMsg(text) {
   ToastAndroid.showWithGravityAndOffset(
     text,
@@ -45,11 +51,13 @@ export async function markFileAsFavourite(fileUri, favourites, setFavorites) {
     if (itemIndex > -1) {
       favourites.splice(itemIndex, 1);
       setFavorites([...favourites]);
+      displayFileSavedToastMsg("Removed from Favourites");
     }
   } else {
     setFavorites((items) =>
       items.length === 0 ? [fileName] : [...items, fileName]
     );
+    displayFileSavedToastMsg("Marked as favorite");
   }
 }
 
@@ -59,4 +67,4 @@ export function getFileNameFromPath(fileUri) {
   } else {
     return fileUri.replace(/^.*(\\|\/|\:)/, "");
   }
-};
+}

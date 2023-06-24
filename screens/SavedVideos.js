@@ -11,7 +11,7 @@ function SavedVideos() {
 
   useEffect(() => {
     const getSavedVideos = async () => {
-      if (isFocused) {
+      if (isFocused && (await RNFS.exists(appDirPath))) {
         const folderContents = (await RNFS.readDir(appDirPath)).map(
           (item) => `file://${item.path}`
         );

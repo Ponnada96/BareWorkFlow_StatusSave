@@ -12,7 +12,7 @@ function SavedImages() {
 
   useEffect(() => {
     const getSavedImages = async () => {
-      if (isFocused) {
+      if (isFocused && (await RNFS.exists(appDirPath))) {
         const folderContents = (await RNFS.readDir(appDirPath)).map(
           (item) => `file://${item.path}`
         );
@@ -27,7 +27,7 @@ function SavedImages() {
 
   if (imageURIs.length == 0)
     return <InfoComponent>No Saved Images</InfoComponent>;
- 
+
   return (
     <View>
       <ImageGallery imageURIs={imageURIs} enableHeaderActions={false} />
