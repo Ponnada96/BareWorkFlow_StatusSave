@@ -15,6 +15,7 @@ const screenHeight = Dimensions.get("window").height;
 
 function VideoPlayerComp({ route, navigation }) {
   const videoUri = route.params?.videoUri;
+  const showHeaderActions = route.params?.showHeaderActions;
   const [isFileDownload, setFileDownload] = useState(false);
   const [showVideo, setIsShowVideo] = useState(true);
   const isFocused = useIsFocused();
@@ -34,20 +35,22 @@ function VideoPlayerComp({ route, navigation }) {
     verifyFileExistense();
   }, []);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () =>
-        isFocused && (
-          <HeaderBtns
-            showSaveAllBtn={false}
-            saveAllHandler={null}
-            saveImgByIndexHandler={saveVideo}
-            isFileDownload={isFileDownload}
-            displayInfoHandler={displayFileSavedToastMsg}
-          />
-        ),
-    });
-  }, [isFileDownload]);
+  if (showHeaderActions) {
+    useEffect(() => {
+      navigation.setOptions({
+        headerRight: () =>
+          isFocused && (
+            <HeaderBtns
+              showSaveAllBtn={false}
+              saveAllHandler={null}
+              saveImgByIndexHandler={saveVideo}
+              isFileDownload={isFileDownload}
+              displayInfoHandler={displayFileSavedToastMsg}
+            />
+          ),
+      });
+    }, [isFileDownload]);
+  }
 
   useEffect(() => {
     if (!isFocused) {

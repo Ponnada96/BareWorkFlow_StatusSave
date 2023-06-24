@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
 import ImageGallery from "../components/ImageGallery";
-import ImageSlides from "../components/ImageSlides";
 
 function Images() {
   const [imageURIs, setimageURIs] = useState([]);
@@ -29,7 +28,7 @@ function Images() {
 
   return (
     <View>
-      <ImageGallery imageURIs={imageURIs} />
+      <ImageGallery imageURIs={imageURIs}  enableHeaderActions={true}/>
     </View>
   );
 }

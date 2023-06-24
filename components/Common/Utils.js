@@ -37,3 +37,26 @@ export function displayFileSavedToastMsg(text) {
     50
   );
 }
+
+export async function markFileAsFavourite(fileUri, favourites, setFavorites) {
+  const fileName = getFileNameFromPath(fileUri);
+  if (favourites.includes(fileName)) {
+    const itemIndex = favourites.indexOf(fileName);
+    if (itemIndex > -1) {
+      favourites.splice(itemIndex, 1);
+      setFavorites([...favourites]);
+    }
+  } else {
+    setFavorites((items) =>
+      items.length === 0 ? [fileName] : [...items, fileName]
+    );
+  }
+}
+
+export function getFileNameFromPath(fileUri) {
+  if (fileUri.includes("%2F")) {
+    return fileUri.substr(fileUri.lastIndexOf("%2F") + 1);
+  } else {
+    return fileUri.replace(/^.*(\\|\/|\:)/, "");
+  }
+};

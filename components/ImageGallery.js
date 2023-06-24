@@ -6,24 +6,51 @@ import { useEffect } from "react";
 import HeaderBtns from "./HeaderBtns";
 import { displayFileSavedToastMsg, SaveAllFiles } from "./Common/Utils";
 import InfoComponent from "./InfoComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+import FavouriteIcon from "../UI/FavouriteIcon";
+import { markFileAsFavourite, getFileNameFromPath } from "./Common/Utils";
 
-function ImageGallery({ imageURIs }) {
+function ImageGallery({ imageURIs, enableHeaderActions }) {
   const navigation = useNavigation();
+  const [favourites, setFavorites] = useState([]);
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    navigation.getParent().setOptions({
-      headerRight: () => (
-        <HeaderBtns
-          showSaveAllBtn={true}
-          saveAllHandler={SaveAllFiles.bind(this, imageURIs)}
-          saveImgByIndexHandler={null}
-          isFileDownload={false}
-          displayInfoHandler={displayFileSavedToastMsg}
-        />
-      ),
-    });
-  }, [imageURIs, isFocused]);
+    if (isFocused) {
+      const getFavourites = async () => {
+        // await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
+        const data = await AsyncStorage.getItem("favourites");
+        if (data != null && data.length > 0) {
+          setFavorites(JSON.parse(data));
+        }
+      };
+      getFavourites();
+    }
+  }, [isFocused]);
+
+  if (enableHeaderActions) {
+    useEffect(() => {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <HeaderBtns
+            showSaveAllBtn={true}
+            saveAllHandler={SaveAllFiles.bind(this, imageURIs)}
+            saveImgByIndexHandler={null}
+            isFileDownload={false}
+            displayInfoHandler={displayFileSavedToastMsg}
+          />
+        ),
+      });
+    }, [imageURIs, isFocused]);
+  }
+
+  useEffect(() => {
+    const updateFavourites = async () => {
+      await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
+    };
+    updateFavourites();
+  }, [favourites]);
 
   const RenderImage = ({ item, index }) => {
     if (imageURIs.length > 0) {
@@ -38,11 +65,25 @@ function ImageGallery({ imageURIs }) {
               style={styles.image}
               resizeMode="cover"
             />
+            <View style={styles.imageActIconsContainer}>
+              <FavouriteIcon
+                onPressHandler={markFileAsFavourite.bind(
+                  this,
+                  item,
+                  favourites,
+                  setFavorites
+                )}
+                iconName={
+                  favourites.includes(getFileNameFromPath(item))
+                    ? "favorite"
+                    : "favorite-border"
+                }
+              />
+            </View>
           </Pressable>
         </View>
       );
-    }
-    else{
+    } else {
       return <InfoComponent>No Videos</InfoComponent>;
     }
   };
@@ -51,6 +92,7 @@ function ImageGallery({ imageURIs }) {
     navigation.navigate("ImageSlides", {
       imageURIs: imageURIs,
       selectdImgIndex: index,
+      showHeaderActions: enableHeaderActions,
     });
   };
 
@@ -73,13 +115,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    margin: 10,
-    borderRadius: 20,
+    margin: 8,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: 240,
+  },
+  imageActIconsContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "95%",
+    left: "90%",
+    transform: [{ translateX: -22 }, { translateY: -22 }],
+    elevation: 6,
   },
   image: {
     flex: 1,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     height: 200,
-    borderRadius: 20,
   },
   pressed: {
     opacity: 0.75,

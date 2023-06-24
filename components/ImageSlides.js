@@ -25,6 +25,7 @@ function ImageSlides({ route, navigation }) {
   const [isFileDownload, setFileDownload] = useState(false);
   const imageURIs = route.params?.imageURIs;
   const imgIndex = route.params?.selectdImgIndex;
+  const enableHeaderAction = route.params?.showHeaderActions;
   const bottomRef = useRef();
   const topRef = useRef();
 
@@ -59,19 +60,21 @@ function ImageSlides({ route, navigation }) {
     VerifyFileExistense();
   }, [selectedIndex]);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <HeaderBtns
-          saveAllHandler={saveAll}
-          showSaveAllBtn={true}
-          saveImgByIndexHandler={saveImageByIndex}
-          isFileDownload={isFileDownload}
-          displayInfoHandler={displayFileSavedToastMsg}
-        />
-      ),
-    });
-  }, [selectedIndex, isFileDownload]);
+  if (enableHeaderAction) {
+    useEffect(() => {
+      navigation.setOptions({
+        headerRight: () => (
+          <HeaderBtns
+            saveAllHandler={saveAll}
+            showSaveAllBtn={true}
+            saveImgByIndexHandler={saveImageByIndex}
+            isFileDownload={isFileDownload}
+            displayInfoHandler={displayFileSavedToastMsg}
+          />
+        ),
+      });
+    }, [selectedIndex, isFileDownload]);
+  }
 
   return (
     <View style={styles.imageContainer}>

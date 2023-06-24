@@ -5,19 +5,20 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Favourites from "./screens/Favourites";
 import PrivateGallary from "./screens/PrivateGallary";
-import Downloads from "./screens/Downloads";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { GlobalStyles } from "./constants/Colors";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
-import { Alert } from "react-native";
+import { Alert, Text } from "react-native";
 import Images from "./screens/Images";
 import Videos from "./screens/Videos";
 import { createStackNavigator } from "@react-navigation/stack";
 import ImageSlides from "./components/ImageSlides";
 import VideoPlayerComp from "./components/VideoPlayerComp";
+import SavedImages from "./screens/SavedImages";
+import SavedVideos from "./screens/SavedVideos";
 
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -61,6 +62,15 @@ function TopTabNavigator() {
   );
 }
 
+function DownloadTopTabNavigator() {
+  return (
+    <TopTabs.Navigator>
+      <TopTabs.Screen name="Images" component={SavedImages}></TopTabs.Screen>
+      <TopTabs.Screen name="Videos" component={SavedVideos}></TopTabs.Screen>
+    </TopTabs.Navigator>
+  );
+}
+
 function BottomTabNavigator() {
   return (
     <BottomTabs.Navigator
@@ -69,16 +79,16 @@ function BottomTabNavigator() {
         headerTintColor: "white",
         tabBarStyle: {
           backgroundColor: GlobalStyles.colors.primary500,
-          height: 80,
+          height: 70,
         },
         tabBarLabelStyle: {
           fontSize: 13,
+          marginBottom: 8,
           alignItems: "center",
-          justifyContent: "center",
-          marginVertical: 4,
         },
         tabBarActiveTintColor: "#0fe9cf",
         tabBarInactiveTintColor: GlobalStyles.colors.white,
+        unmountOnBlur: true,
       }}
     >
       <BottomTabs.Screen
@@ -91,14 +101,14 @@ function BottomTabNavigator() {
             <Icon
               name="download"
               color={focused ? "#0fe9cf" : color}
-              size={24}
+              size={focused ? 32 : size}
             />
           ),
         }}
       ></BottomTabs.Screen>
       <BottomTabs.Screen
         name="Downloads"
-        component={Downloads}
+        component={DownloadTopTabNavigator}
         options={{
           title: "Downloads",
           tabBarLabel: "Downloads",
@@ -106,7 +116,7 @@ function BottomTabNavigator() {
             <Icon
               name="image"
               color={focused ? "#0fe9cf" : color}
-              size={size}
+              size={focused ? 32 : size}
             />
           ),
         }}
@@ -121,7 +131,7 @@ function BottomTabNavigator() {
             <MaterialIcon
               name="favorite"
               color={focused ? "#0fe9cf" : color}
-              size={size}
+              size={focused ? 32 : size}
             />
           ),
         }}
@@ -136,7 +146,7 @@ function BottomTabNavigator() {
             <MaterialIcon
               name="security"
               color={focused ? "#0fe9cf" : color}
-              size={size}
+              size={focused ? 32 : size}
             />
           ),
         }}

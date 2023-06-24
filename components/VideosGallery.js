@@ -11,23 +11,25 @@ import { SaveAllFiles, displayFileSavedToastMsg } from "./Common/Utils";
 
 const height = Dimensions.get("window").height;
 
-function VideosGallery({ videoURIs }) {
+function VideosGallery({ videoURIs, showHeaderActions }) {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
 
-  useEffect(() => {
-    navigation.getParent().setOptions({
-      headerRight: () => (
-        <HeaderBtns
-          showSaveAllBtn={true}
-          saveAllHandler={SaveAllFiles.bind(this, videoURIs)}
-          saveImgByIndexHandler={null}
-          isFileDownload={false}
-          displayInfoHandler={displayFileSavedToastMsg}
-        />
-      ),
-    });
-  }, [videoURIs, isFocused]);
+  if (showHeaderActions) {
+    useEffect(() => {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <HeaderBtns
+            showSaveAllBtn={true}
+            saveAllHandler={SaveAllFiles.bind(this, videoURIs)}
+            saveImgByIndexHandler={null}
+            isFileDownload={false}
+            displayInfoHandler={displayFileSavedToastMsg}
+          />
+        ),
+      });
+    }, [videoURIs, isFocused]);
+  }
 
   const renderVideoThumbnail = ({ item, _ }) => {
     return (
@@ -55,7 +57,10 @@ function VideosGallery({ videoURIs }) {
   };
 
   const play = (uri) => {
-    navigation.navigate("VideoPlayer", { videoUri: uri });
+    navigation.navigate("VideoPlayer", {
+      videoUri: uri,
+      showHeaderActions: showHeaderActions,
+    });
   };
 
   if (videoURIs.length > 0) {
@@ -78,6 +83,7 @@ export default VideosGallery;
 const styles = StyleSheet.create({
   mainConatiner: {
     backgroundColor: GlobalStyles.colors.primary900,
+    height: "100%",
   },
   container: {
     height: height / 4,

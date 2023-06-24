@@ -1,5 +1,5 @@
 import { Pressable, View, StyleSheet } from "react-native";
-import { Ionicons, Entypo } from "@expo/vector-icons";
+import { Ionicons, Entypo, MaterialIcons } from "@expo/vector-icons";
 
 function IconButton({ name, size, color, onPress, iconType }) {
   let icon;
@@ -10,6 +10,11 @@ function IconButton({ name, size, color, onPress, iconType }) {
       break;
     case "Entypo":
       icon = <Entypo name={name} size={size} color={color}></Entypo>;
+      break;
+    case "MaterialIcons":
+      icon = (
+        <MaterialIcons name={name} size={size} color={color}></MaterialIcons>
+      );
       break;
   }
 

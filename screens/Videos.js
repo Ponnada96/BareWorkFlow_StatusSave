@@ -3,7 +3,6 @@ import { useIsFocused } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
-import ImageGallery from "../components/ImageGallery";
 import VideosGallery from "../components/VideosGallery";
 
 function Videos() {
@@ -26,11 +25,7 @@ function Videos() {
 
   return (
     <View>
-      {/* <ImageGallery imageURIs={videoUris} /> */}
-      <VideosGallery videoURIs={videoUris}/>
-      {/* {videoUris.length > 0 && (
-        <VideoPlayerComp videoUri={[videoUris[0] ]} />
-      )} */}
+      <VideosGallery videoURIs={videoUris} showHeaderActions={true} />
     </View>
   );
 }
