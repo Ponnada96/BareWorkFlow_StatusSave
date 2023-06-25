@@ -22,7 +22,7 @@ export async function SaveFile(fileUri) {
 }
 
 export function getFileDestPath(fileUri) {
-  const fileName = fileUri.substr(fileUri.lastIndexOf("%2F") + 1);
+  const fileName = getFileNameFromPath(fileUri);
   const dirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
   const destPath = `${dirPath}/${fileName}`;
   return { dirPath, destPath };

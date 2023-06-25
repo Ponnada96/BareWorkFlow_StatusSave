@@ -14,6 +14,7 @@ import {
   markFileAsFavourite,
   displayFileSavedToastMsg,
   SaveAllFiles,
+  isFileExistsInSystem,
 } from "./Common/Utils";
 import DownloadIcon from "../UI/DownloadIcon";
 
@@ -27,8 +28,8 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
   useEffect(() => {
     if (isFocused) {
       const getFavourites = async () => {
-        await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
-        const data = await AsyncStorage.getItem("favourites");
+      // await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
+        const data = await AsyncStorage.getItem("favImages");
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
         }
@@ -72,18 +73,18 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
 
   useEffect(() => {
     const updateFavourites = async () => {
-      await AsyncStorage.setItem("favourites", JSON.stringify(favourites));
+      await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
     };
     updateFavourites();
   }, [favourites]);
 
-  async function saveImage(uri) {
+  async function saveImage(uri, showToastMsg) {
     await SaveFile(uri);
     const fileName = getFileNameFromPath(uri);
-    displayFileSavedToastMsg("File Saved");
     setSavedImages((items) =>
       items.length === 0 ? [fileName] : [...items, fileName]
     );
+    showToastMsg && displayFileSavedToastMsg("File Saved");
   }
 
   function SaveAllFilesHandler(imageURIs) {
@@ -95,6 +96,13 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
       }
     });
   }
+
+  const markImageAsFavourite = async (fileUri) => {
+    if (!(await isFileExistsInSystem(fileUri))) {
+      await saveImage(fileUri, false);
+    }
+    await markFileAsFavourite(fileUri, favourites, setFavorites);
+  };
 
   const RenderImage = ({ item, index }) => {
     return (
@@ -108,38 +116,34 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
             style={styles.image}
             resizeMode="cover"
           />
-          <View style={styles.favIconContainer}>
-            <FavouriteIcon
+        </Pressable>
+        <View style={styles.favIconContainer}>
+          <FavouriteIcon
+            iconName={
+              favourites.includes(getFileNameFromPath(item))
+                ? "favorite"
+                : "favorite-border"
+            }
+            onPressHandler={markImageAsFavourite.bind(this, item)}
+          />
+        </View>
+        {enableHeaderActions && (
+          <View style={styles.downloadIconContainer}>
+            <DownloadIcon
               iconName={
-                favourites.includes(getFileNameFromPath(item))
-                  ? "favorite"
-                  : "favorite-border"
+                savedImages.includes(getFileNameFromPath(item))
+                  ? "check"
+                  : "file-download"
               }
-              onPressHandler={markFileAsFavourite.bind(
-                this,
-                item,
-                favourites,
-                setFavorites
-              )}
+              onPressHandler={
+                savedImages.includes(getFileNameFromPath(item))
+                  ? displayFileSavedToastMsg.bind(this, "File already saved!")
+                  : saveImage.bind(this, item, true)
+              }
             />
           </View>
-          {enableHeaderActions && (
-            <View style={styles.downloadIconContainer}>
-              <DownloadIcon
-                iconName={
-                  savedImages.includes(getFileNameFromPath(item))
-                    ? "check"
-                    : "file-download"
-                }
-                onPressHandler={
-                  savedImages.includes(getFileNameFromPath(item))
-                    ? displayFileSavedToastMsg.bind(this, "File already saved!")
-                    : saveImage.bind(this, item)
-                }
-              />
-            </View>
-          )}
-        </Pressable>
+          
+        )}
       </View>
     );
   };
@@ -172,8 +176,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     margin: 8,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
     height: 240,
   },
   favIconContainer: {
@@ -204,8 +207,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderRadius: 20,
     height: 200,
   },
   pressed: {

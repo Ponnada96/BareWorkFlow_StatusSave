@@ -88,7 +88,7 @@ function BottomTabNavigator() {
         },
         tabBarActiveTintColor: "#0fe9cf",
         tabBarInactiveTintColor: GlobalStyles.colors.white,
-        unmountOnBlur: true,
+        // unmountOnBlur: true,
       }}
     >
       <BottomTabs.Screen
