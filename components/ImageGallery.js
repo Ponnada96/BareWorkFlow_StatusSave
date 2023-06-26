@@ -18,7 +18,12 @@ import {
 } from "./Common/Utils";
 import DownloadIcon from "../UI/DownloadIcon";
 
-function ImageGallery({ imageURIs, enableHeaderActions }) {
+function ImageGallery({
+  imageURIs,
+  enableHeaderActions,
+  showFavActn,
+  showDownloadActn,
+}) {
   const navigation = useNavigation();
   const [favourites, setFavorites] = useState([]);
   const [savedImages, setSavedImages] = useState([]);
@@ -28,7 +33,7 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
   useEffect(() => {
     if (isFocused) {
       const getFavourites = async () => {
-      // await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
+        // await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
         const data = await AsyncStorage.getItem("favImages");
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
@@ -104,6 +109,10 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
     await markFileAsFavourite(fileUri, favourites, setFavorites);
   };
 
+  if (!showFavActn) {
+    styles.downloadIconContainer.left = "90%";
+  }
+
   const RenderImage = ({ item, index }) => {
     return (
       <View style={styles.container}>
@@ -117,17 +126,20 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
             resizeMode="cover"
           />
         </Pressable>
-        <View style={styles.favIconContainer}>
-          <FavouriteIcon
-            iconName={
-              favourites.includes(getFileNameFromPath(item))
-                ? "favorite"
-                : "favorite-border"
-            }
-            onPressHandler={markImageAsFavourite.bind(this, item)}
-          />
-        </View>
-        {enableHeaderActions && (
+        {showFavActn && (
+          <View style={styles.favIconContainer}>
+            <FavouriteIcon
+              iconName={
+                favourites.includes(getFileNameFromPath(item))
+                  ? "favorite"
+                  : "favorite-border"
+              }
+              size={22}
+              onPressHandler={markImageAsFavourite.bind(this, item)}
+            />
+          </View>
+        )}
+        {showDownloadActn && (
           <View style={styles.downloadIconContainer}>
             <DownloadIcon
               iconName={
@@ -142,7 +154,6 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
               }
             />
           </View>
-          
         )}
       </View>
     );
@@ -153,6 +164,7 @@ function ImageGallery({ imageURIs, enableHeaderActions }) {
       imageURIs: imageURIs,
       selectdImgIndex: index,
       showHeaderActions: enableHeaderActions,
+      showFavActnBtn: showFavActn,
     });
   };
 

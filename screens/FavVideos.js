@@ -22,10 +22,8 @@ function FavVideos() {
         const videos = folderContents.filter((url) =>
           /^(?!.*trashed-).*\.(mp4)$/.test(url)
         );
-        console.log("videos", videos);
         if (videos.length > 0) {
           const favVideoFileNames = await AsyncStorage.getItem("favVideos");
-          console.log("favVideoFileNames", favVideoFileNames);
           if (favVideoFileNames != null && favVideoFileNames.length > 0) {
             const favImages = videos.filter((item) =>
               favVideoFileNames.includes(getFileNameFromPath(item))
@@ -43,7 +41,12 @@ function FavVideos() {
 
   return (
     <View>
-      <VideosGallery videoURIs={favVideos} enableHeaderActions={false} />
+      <VideosGallery
+        videoURIs={favVideos}
+        enableHeaderActions={false}
+        showDownloadActn={false}
+        showFavActn={true}
+      />
     </View>
   );
 }

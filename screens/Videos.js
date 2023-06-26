@@ -25,7 +25,12 @@ function Videos() {
 
   return (
     <View>
-      <VideosGallery videoURIs={videoUris} showHeaderActions={true} />
+      <VideosGallery
+        videoURIs={videoUris}
+        showHeaderActions={true}
+        showFavActn={false}
+        showDownloadActn={true}
+      />
     </View>
   );
 }

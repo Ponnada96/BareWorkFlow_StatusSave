@@ -21,10 +21,8 @@ function FavImages() {
         const images = folderContents.filter((url) =>
           /^(?!.*trashed-).*\.(jpe?g|png|webp)$/.test(url)
         );
-        console.log("Images", images);
         if (images.length > 0) {
           const favImgFileNames = await AsyncStorage.getItem("favImages");
-          console.log("favImgFileNames", favImgFileNames);
           if (favImgFileNames != null && favImgFileNames.length > 0) {
             const favImages = images.filter((item) =>
               favImgFileNames.includes(getFileNameFromPath(item))
@@ -42,7 +40,12 @@ function FavImages() {
 
   return (
     <View>
-      <ImageGallery imageURIs={favImages} enableHeaderActions={false} />
+      <ImageGallery
+        imageURIs={favImages}
+        enableHeaderActions={false}
+        showDownloadActn={false}
+        showFavActn={true}
+      />
     </View>
   );
 }

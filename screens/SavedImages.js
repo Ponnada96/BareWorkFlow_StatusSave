@@ -30,7 +30,12 @@ function SavedImages() {
 
   return (
     <View>
-      <ImageGallery imageURIs={imageURIs} enableHeaderActions={false} />
+      <ImageGallery
+        imageURIs={imageURIs}
+        enableHeaderActions={false}
+        showDownloadActn={false}
+        showFavActn={true}
+      />
     </View>
   );
 }

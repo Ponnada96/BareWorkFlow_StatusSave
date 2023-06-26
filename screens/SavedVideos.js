@@ -26,7 +26,12 @@ function SavedVideos() {
 
   return (
     <View>
-      <VideosGallery videoURIs={videoUris} showHeaderActions={false} />
+      <VideosGallery
+        videoURIs={videoUris}
+        showHeaderActions={false}
+        showDownloadActn={false}
+        showFavActn={true}
+      />
     </View>
   );
 }

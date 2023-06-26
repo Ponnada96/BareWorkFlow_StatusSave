@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 
-function FavouriteIcon({ onPressHandler, iconName }) {
+function FavouriteIcon({ onPressHandler, iconName ,size}) {
   return (
     <Pressable
       onPress={onPressHandler}
@@ -10,7 +10,7 @@ function FavouriteIcon({ onPressHandler, iconName }) {
     >
       <MaterialIcons
         name={iconName}
-        size={22}
+        size={size}
         color="#b11d1d"
       ></MaterialIcons>
     </Pressable>

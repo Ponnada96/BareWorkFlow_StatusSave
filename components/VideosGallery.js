@@ -22,7 +22,12 @@ import DownloadIcon from "../UI/DownloadIcon";
 
 const height = Dimensions.get("window").height;
 
-function VideosGallery({ videoURIs, showHeaderActions }) {
+function VideosGallery({
+  videoURIs,
+  showHeaderActions,
+  showFavActn,
+  showDownloadActn,
+}) {
   const navigation = useNavigation();
   const [favourites, setFavorites] = useState([]);
   const [savedVideos, setSavedVideos] = useState([]);
@@ -32,7 +37,6 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
   useEffect(() => {
     const getFavourites = async () => {
       if (isFocused) {
-        console.log("useLayEff-Fav");
         // await AsyncStorage.setItem("fav_videos", JSON.stringify(favourites));
         const data = await AsyncStorage.getItem("favVideos");
         if (data != null && data.length > 0) {
@@ -61,12 +65,10 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
   useEffect(() => {
     const updateFavourites = async () => {
       if (isFocused) {
-        console.log("set storage", favourites);
         await AsyncStorage.setItem("favVideos", JSON.stringify(favourites));
       }
     };
     updateFavourites();
-    console.log("Executed updateFav storage", favourites);
   }, [favourites, isFocused]);
 
   if (showHeaderActions) {
@@ -94,6 +96,7 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
       }
     });
   }
+
   async function saveVideo(uri, showToastMsg) {
     await SaveFile(uri);
     const fileName = getFileNameFromPath(uri);
@@ -109,6 +112,10 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
     }
     await markFileAsFavourite(fileUri, favourites, setFavorites);
   };
+
+  if (!showFavActn) {
+    styles.downloadIconContainer.left = "98%";
+  }
 
   const renderVideoThumbnail = ({ item, _ }) => {
     return (
@@ -131,17 +138,20 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
             />
           </Pressable>
         </View>
-        <View style={styles.favIconContainer}>
-          <FavouriteIcon
-            iconName={
-              favourites.includes(getFileNameFromPath(item))
-                ? "favorite"
-                : "favorite-border"
-            }
-            onPressHandler={markVideoAsFavourite.bind(this, item)}
-          />
-        </View>
-        {showHeaderActions && (
+        {showFavActn && (
+          <View style={styles.favIconContainer}>
+            <FavouriteIcon
+              iconName={
+                favourites.includes(getFileNameFromPath(item))
+                  ? "favorite"
+                  : "favorite-border"
+              }
+              size={22}
+              onPressHandler={markVideoAsFavourite.bind(this, item)}
+            />
+          </View>
+        )}
+        {showDownloadActn && (
           <View style={styles.downloadIconContainer}>
             <DownloadIcon
               iconName={
@@ -165,6 +175,7 @@ function VideosGallery({ videoURIs, showHeaderActions }) {
     navigation.navigate("VideoPlayer", {
       videoUri: uri,
       showHeaderActions: showHeaderActions,
+      showFavActn: showFavActn,
     });
   };
 

@@ -67,8 +67,14 @@ function TopTabNavigator() {
 function DownloadTopTabNavigator() {
   return (
     <TopTabs.Navigator>
-      <TopTabs.Screen name="Images" component={SavedImages}></TopTabs.Screen>
-      <TopTabs.Screen name="Videos" component={SavedVideos}></TopTabs.Screen>
+      <TopTabs.Screen
+        name="Saved Images"
+        component={SavedImages}
+      ></TopTabs.Screen>
+      <TopTabs.Screen
+        name="Saved Videos "
+        component={SavedVideos}
+      ></TopTabs.Screen>
     </TopTabs.Navigator>
   );
 }
@@ -147,7 +153,7 @@ function BottomTabNavigator() {
           ),
         }}
       ></BottomTabs.Screen>
-      <BottomTabs.Screen
+      {/* <BottomTabs.Screen
         name="PrivateGallary"
         component={PrivateGallary}
         options={{
@@ -161,7 +167,7 @@ function BottomTabNavigator() {
             />
           ),
         }}
-      ></BottomTabs.Screen>
+      ></BottomTabs.Screen> */}
     </BottomTabs.Navigator>
   );
 }

@@ -15,7 +15,12 @@ import {
   SaveFile,
   getFileDestPath,
   displayFileSavedToastMsg,
+  getFileNameFromPath,
+  markFileAsFavourite,
 } from "./Common/Utils";
+import FavouriteIcon from "../UI/FavouriteIcon";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -26,9 +31,11 @@ function ImageSlides({ route, navigation }) {
   const imageURIs = route.params?.imageURIs;
   const imgIndex = route.params?.selectdImgIndex;
   const enableHeaderAction = route.params?.showHeaderActions;
+  const showFavActn = route.params?.showFavActnBtn;
   const bottomRef = useRef();
   const topRef = useRef();
-
+  const [favourites, setFavorites] = useState([]);
+  const isFocused = useIsFocused();
   function scrollImages(e) {
     const index = (e.nativeEvent.contentOffset.x / screenWidth).toFixed(0);
     setSelecetedIndex(index);
@@ -45,6 +52,27 @@ function ImageSlides({ route, navigation }) {
     SaveAllFiles(imageURIs);
     setFileDownload(true);
   }
+
+  useEffect(() => {
+    if (isFocused) {
+      const getFavourites = async () => {
+        // await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
+        const data = await AsyncStorage.getItem("favImages");
+        if (data != null && data.length > 0) {
+          setFavorites(JSON.parse(data));
+        }
+        console.log("fa", data);
+      };
+      getFavourites();
+    }
+  }, [isFocused]);
+
+  useEffect(() => {
+    const updateFavourites = async () => {
+      await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
+    };
+    updateFavourites();
+  }, [favourites]);
 
   useLayoutEffect(() => {
     setSelecetedIndex(imgIndex);
@@ -74,6 +102,33 @@ function ImageSlides({ route, navigation }) {
         ),
       });
     }, [selectedIndex, isFileDownload]);
+  }
+
+  if (showFavActn) {
+    useEffect(() => {
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={styles.favContainer}>
+            <FavouriteIcon
+              iconName={
+                favourites.includes(
+                  getFileNameFromPath(imageURIs[selectedIndex])
+                )
+                  ? "favorite"
+                  : "favorite-border"
+              }
+              size={26}
+              onPressHandler={markFileAsFavourite.bind(
+                this,
+                imageURIs[selectedIndex],
+                favourites,
+                setFavorites
+              )}
+            />
+          </View>
+        ),
+      });
+    }, [selectedIndex, favourites]);
   }
 
   return (
@@ -181,5 +236,10 @@ const styles = StyleSheet.create({
   },
   btn: {
     marginHorizontal: 10,
+  },
+  favContainer: {
+    alignItems: "center",
+    marginRight: 10,
+    flexDirection: "row",
   },
 });

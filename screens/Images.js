@@ -32,7 +32,12 @@ function Images() {
 
   return (
     <View>
-      <ImageGallery imageURIs={imageURIs} enableHeaderActions={true} />
+      <ImageGallery
+        imageURIs={imageURIs}
+        enableHeaderActions={true}
+        showDownloadActn={true}
+        showFavActn={false}
+      />
     </View>
   );
 }
