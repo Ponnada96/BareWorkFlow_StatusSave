@@ -19,6 +19,8 @@ import ImageSlides from "./components/ImageSlides";
 import VideoPlayerComp from "./components/VideoPlayerComp";
 import SavedImages from "./screens/SavedImages";
 import SavedVideos from "./screens/SavedVideos";
+import FavImages from "./screens/FavImages";
+import FavVideos from "./screens/FavVideos";
 
 const BottomTabs = createBottomTabNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -67,6 +69,15 @@ function DownloadTopTabNavigator() {
     <TopTabs.Navigator>
       <TopTabs.Screen name="Images" component={SavedImages}></TopTabs.Screen>
       <TopTabs.Screen name="Videos" component={SavedVideos}></TopTabs.Screen>
+    </TopTabs.Navigator>
+  );
+}
+
+function FavouriteTopTabNavigator() {
+  return (
+    <TopTabs.Navigator>
+      <TopTabs.Screen name="Fav Images" component={FavImages}></TopTabs.Screen>
+      <TopTabs.Screen name="Fav Videos" component={FavVideos}></TopTabs.Screen>
     </TopTabs.Navigator>
   );
 }
@@ -123,7 +134,7 @@ function BottomTabNavigator() {
       ></BottomTabs.Screen>
       <BottomTabs.Screen
         name="Favourites"
-        component={Favourites}
+        component={FavouriteTopTabNavigator}
         options={{
           title: "Favourites",
           tabBarLabel: "Favourites",
