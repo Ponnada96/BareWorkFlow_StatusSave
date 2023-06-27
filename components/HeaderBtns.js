@@ -2,6 +2,7 @@ import { View, StyleSheet } from "react-native";
 import IconButton from "../UI/IconButton";
 import { IconTypes } from "../constants/IconTypes";
 import Button from "../UI/Button";
+import ShareBtn from "./ShareBtn";
 
 function HeaderBtns({
   saveAllHandler,
@@ -9,6 +10,9 @@ function HeaderBtns({
   saveImgByIndexHandler,
   isFileDownload,
   displayInfoHandler,
+  showShareBtnActn,
+  shareItemFileType,
+  fileItem,
 }) {
   return (
     <View style={styles.btnContainer}>
@@ -28,7 +32,7 @@ function HeaderBtns({
           <IconButton
             name="check"
             size={24}
-            color="#b62323"
+            color="#f03709"
             onPress={displayInfoHandler.bind(this, "File Already Saved!")}
             iconType={IconTypes.Entypo}
           ></IconButton>
@@ -42,6 +46,10 @@ function HeaderBtns({
           ></IconButton>
         )
       ) : null}
+
+      {showShareBtnActn && (
+        <ShareBtn fileType={shareItemFileType} fileItem={fileItem} />
+      )}
     </View>
   );
 }

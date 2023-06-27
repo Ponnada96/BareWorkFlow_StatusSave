@@ -14,6 +14,7 @@ import {
 } from "./Common/Utils";
 import FavouriteIcon from "../UI/FavouriteIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ShareBtn from "./ShareBtn";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -73,6 +74,9 @@ function VideoPlayerComp({ route, navigation }) {
               saveImgByIndexHandler={saveVideo}
               isFileDownload={isFileDownload}
               displayInfoHandler={displayFileSavedToastMsg}
+              showShareBtnActn={true}
+              shareItemFileType={"video/mp4"}
+              fileItem={videoUri}
             />
           ),
       });
@@ -84,20 +88,25 @@ function VideoPlayerComp({ route, navigation }) {
       navigation.setOptions({
         headerRight: () => (
           <View style={styles.favContainer}>
-            <FavouriteIcon
-              iconName={
-                favourites.includes(getFileNameFromPath(videoUri))
-                  ? "favorite"
-                  : "favorite-border"
-              }
-              size={26}
-              onPressHandler={markFileAsFavourite.bind(
-                this,
-                videoUri,
-                favourites,
-                setFavorites
-              )}
-            />
+            <View style={{ marginHorizontal: 10 }}>
+              <FavouriteIcon
+                iconName={
+                  favourites.includes(getFileNameFromPath(videoUri))
+                    ? "favorite"
+                    : "favorite-border"
+                }
+                size={26}
+                onPressHandler={markFileAsFavourite.bind(
+                  this,
+                  videoUri,
+                  favourites,
+                  setFavorites
+                )}
+              />
+            </View>
+            <View>
+              <ShareBtn fileType={"video/mp4"} fileItem={videoUri} />
+            </View>
           </View>
         ),
       });

@@ -71,6 +71,7 @@ function ImageGallery({
             saveImgByIndexHandler={null}
             isFileDownload={false}
             displayInfoHandler={displayFileSavedToastMsg}
+            showShareBtnActn={false}
           />
         ),
       });

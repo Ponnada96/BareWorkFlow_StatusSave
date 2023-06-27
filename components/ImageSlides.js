@@ -21,6 +21,7 @@ import {
 import FavouriteIcon from "../UI/FavouriteIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
+import ShareBtn from "./ShareBtn";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -98,6 +99,9 @@ function ImageSlides({ route, navigation }) {
             saveImgByIndexHandler={saveImageByIndex}
             isFileDownload={isFileDownload}
             displayInfoHandler={displayFileSavedToastMsg}
+            showShareBtnActn={true}
+            shareItemFileType={"image/png"}
+            fileItem={imageURIs[selectedIndex]}
           />
         ),
       });
@@ -108,24 +112,34 @@ function ImageSlides({ route, navigation }) {
     useEffect(() => {
       navigation.setOptions({
         headerRight: () => (
-          <View style={styles.favContainer}>
-            <FavouriteIcon
-              iconName={
-                favourites.includes(
-                  getFileNameFromPath(imageURIs[selectedIndex])
-                )
-                  ? "favorite"
-                  : "favorite-border"
-              }
-              size={26}
-              onPressHandler={markFileAsFavourite.bind(
-                this,
-                imageURIs[selectedIndex],
-                favourites,
-                setFavorites
-              )}
-            />
-          </View>
+          <>
+            <View style={styles.actionContainer}>
+              <View style={{ marginHorizontal: 10 }}>
+                <FavouriteIcon
+                  iconName={
+                    favourites.includes(
+                      getFileNameFromPath(imageURIs[selectedIndex])
+                    )
+                      ? "favorite"
+                      : "favorite-border"
+                  }
+                  size={26}
+                  onPressHandler={markFileAsFavourite.bind(
+                    this,
+                    imageURIs[selectedIndex],
+                    favourites,
+                    setFavorites
+                  )}
+                />
+              </View>
+              <View style={{ marginRight: 4 }}>
+                <ShareBtn
+                  fileType={"image/png"}
+                  fileItem={imageURIs[selectedIndex]}
+                />
+              </View>
+            </View>
+          </>
         ),
       });
     }, [selectedIndex, favourites]);
@@ -237,7 +251,7 @@ const styles = StyleSheet.create({
   btn: {
     marginHorizontal: 10,
   },
-  favContainer: {
+  actionContainer: {
     alignItems: "center",
     marginRight: 10,
     flexDirection: "row",
