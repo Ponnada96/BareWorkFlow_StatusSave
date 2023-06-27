@@ -19,6 +19,7 @@ import FavouriteIcon from "../UI/FavouriteIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as RNFS from "react-native-fs";
 import DownloadIcon from "../UI/DownloadIcon";
+import ShareBtn from "./ShareBtn";
 
 const height = Dimensions.get("window").height;
 
@@ -37,7 +38,7 @@ function VideosGallery({
   useEffect(() => {
     const getFavourites = async () => {
       if (isFocused) {
-        // await AsyncStorage.setItem("fav_videos", JSON.stringify(favourites));
+        // await AsyncStorage.setItem("favVideos", JSON.stringify(favourites));
         const data = await AsyncStorage.getItem("favVideos");
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
@@ -167,6 +168,9 @@ function VideosGallery({
             />
           </View>
         )}
+        <View style={styles.shareIconContainer}>
+          <ShareBtn fileItem={item} fileType={"video/mp4"} />
+        </View>
       </View>
     );
   };
@@ -234,6 +238,19 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   downloadIconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "98%",
+    left: "88%",
+    transform: [{ translateX: -30 }, { translateY: -30 }],
+    elevation: 6,
+  },
+  shareIconContainer: {
     width: 30,
     height: 30,
     borderRadius: 15,

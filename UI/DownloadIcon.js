@@ -8,7 +8,7 @@ function DownloadIcon({ onPressHandler, iconName }) {
       onPress={onPressHandler}
       style={({ pressed }) => pressed && styles.pressed}
     >
-      <MaterialIcons name={iconName} size={22} color="#b11d1d"></MaterialIcons>
+      <MaterialIcons name={iconName} size={22} color="#f03709"></MaterialIcons>
     </Pressable>
   );
 }

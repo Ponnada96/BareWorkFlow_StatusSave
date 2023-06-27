@@ -3,8 +3,6 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Favourites from "./screens/Favourites";
-import PrivateGallary from "./screens/PrivateGallary";
 import Icon from "react-native-vector-icons/FontAwesome";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { GlobalStyles } from "./constants/Colors";
@@ -57,7 +55,9 @@ const GetDirectoryPermission = async () => {
 
 function TopTabNavigator() {
   return (
-    <TopTabs.Navigator>
+    <TopTabs.Navigator
+      screenOptions={{ tabBarLabelStyle: { fontWeight: "bold" } }}
+    >
       <TopTabs.Screen name="Images" component={Images} />
       <TopTabs.Screen name="Videos" component={Videos} />
     </TopTabs.Navigator>
@@ -66,7 +66,9 @@ function TopTabNavigator() {
 
 function DownloadTopTabNavigator() {
   return (
-    <TopTabs.Navigator>
+    <TopTabs.Navigator
+      screenOptions={{ tabBarLabelStyle: { fontWeight: "bold" } }}
+    >
       <TopTabs.Screen
         name="Saved Images"
         component={SavedImages}
@@ -81,7 +83,9 @@ function DownloadTopTabNavigator() {
 
 function FavouriteTopTabNavigator() {
   return (
-    <TopTabs.Navigator>
+    <TopTabs.Navigator
+      screenOptions={{ tabBarLabelStyle: { fontWeight: "bold" } }}
+    >
       <TopTabs.Screen name="Fav Images" component={FavImages}></TopTabs.Screen>
       <TopTabs.Screen name="Fav Videos" component={FavVideos}></TopTabs.Screen>
     </TopTabs.Navigator>

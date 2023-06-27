@@ -11,7 +11,7 @@ function FavouriteIcon({ onPressHandler, iconName ,size}) {
       <MaterialIcons
         name={iconName}
         size={size}
-        color="#b11d1d"
+        color="#f03709"
       ></MaterialIcons>
     </Pressable>
   );

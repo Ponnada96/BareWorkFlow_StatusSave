@@ -17,6 +17,7 @@ import {
   isFileExistsInSystem,
 } from "./Common/Utils";
 import DownloadIcon from "../UI/DownloadIcon";
+import ShareBtn from "./ShareBtn";
 
 function ImageGallery({
   imageURIs,
@@ -33,7 +34,7 @@ function ImageGallery({
   useEffect(() => {
     if (isFocused) {
       const getFavourites = async () => {
-        // await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
+        //  await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
         const data = await AsyncStorage.getItem("favImages");
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
@@ -155,6 +156,9 @@ function ImageGallery({
             />
           </View>
         )}
+        <View style={styles.shareIconContainer}>
+          <ShareBtn fileItem={item} fileType={"image/png"} />
+        </View>
       </View>
     );
   };
@@ -201,6 +205,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "95%",
     left: "90%",
+    transform: [{ translateX: -22 }, { translateY: -22 }],
+    elevation: 6,
+  },
+  shareIconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "95%",
+    left: "70%",
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
   },
