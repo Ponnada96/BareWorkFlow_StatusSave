@@ -18,6 +18,7 @@ import {
 } from "./Common/Utils";
 import DownloadIcon from "../UI/DownloadIcon";
 import ShareBtn from "./ShareBtn";
+import CheckBoxItem from "../UI/CheckBoxItem";
 
 function ImageGallery({
   imageURIs,
@@ -30,6 +31,9 @@ function ImageGallery({
   const [savedImages, setSavedImages] = useState([]);
   const isFocused = useIsFocused();
   const appDirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [isMulSelectImagesEnabled, setMulSelectImagesEnabled] = useState(false);
+  const [isShareCompleted, setIsShareCompleted] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -43,6 +47,13 @@ function ImageGallery({
       getFavourites();
     }
   }, [isFocused]);
+
+  useEffect(() => {
+    if (isFocused || isShareCompleted) {
+        setMulSelectImagesEnabled(false);
+        setSelectedImages([]);
+    }
+  }, [isFocused, isShareCompleted]);
 
   useEffect(() => {
     if (isFocused) {
@@ -75,8 +86,38 @@ function ImageGallery({
           />
         ),
       });
-    }, [imageURIs, isFocused]);
+      if (isMulSelectImagesEnabled) {
+        navigation.getParent().setOptions({
+          headerRight: () => (
+            <View style={styles.headerShareIconContainer}>
+              <ShareBtn
+                fileItems={getSelecetdImages()}
+                fileType={"image/png"}
+                setIsShareCompleted={setIsShareCompleted}
+              />
+            </View>
+          ),
+        });
+      }
+    }, [imageURIs, isFocused, isMulSelectImagesEnabled, selectedImages]);
   }
+
+  const getSelecetdImages = () => {
+    const selImages = imageURIs.filter((item) =>
+      selectedImages.includes(getFileNameFromPath(item))
+    );
+    return selImages;
+  };
+
+  // if (isMulSelectImagesEnabled) {
+  //   useEffect(() => {
+  //     navigation.getParent().setOptions({
+  //       // headerRight: () => (
+  //       //   <ShareBtn fileItems={selectedImages} fileType={"image/png"} />
+  //       // ),
+  //     });
+  //   }, [selectedImages]);
+  // }
 
   useEffect(() => {
     const updateFavourites = async () => {
@@ -115,12 +156,50 @@ function ImageGallery({
     styles.downloadIconContainer.left = "90%";
   }
 
+  const handleImageLongPress = (fileUri) => {
+    console.log("longPress");
+    selectImage(fileUri);
+    setMulSelectImagesEnabled(!isMulSelectImagesEnabled);
+  };
+
+  const selectImage = (fileUri) => {
+    const fileName = getFileNameFromPath(fileUri);
+    const isSelected = selectedImages.includes(fileName);
+    if (isSelected) {
+      setSelectedImages(selectedImages.filter((item) => item !== fileName));
+    } else {
+      setSelectedImages([...selectedImages, fileName]);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedImages.length === 0) {
+      setMulSelectImagesEnabled(false);
+    }
+  }, [selectedImages]);
+
+  const isFileSelected = (fileUri) => {
+    const fileName = getFileNameFromPath(fileUri);
+    const isExists = selectedImages.includes(fileName);
+    return isExists;
+  };
+
   const RenderImage = ({ item, index }) => {
     return (
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          isMulSelectImagesEnabled && { opacity: 0.78 },
+        ]}
+      >
         <Pressable
-          onPress={openGallery.bind(this, index)}
+          onPress={
+            isMulSelectImagesEnabled
+              ? selectImage.bind(this, item)
+              : openGallery.bind(this, index)
+          }
           style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
+          onLongPress={handleImageLongPress.bind(this, item)}
         >
           <Image
             source={{ uri: item }}
@@ -128,7 +207,7 @@ function ImageGallery({
             resizeMode="cover"
           />
         </Pressable>
-        {showFavActn && (
+        {showFavActn && !isMulSelectImagesEnabled && (
           <View style={styles.favIconContainer}>
             <FavouriteIcon
               iconName={
@@ -141,7 +220,7 @@ function ImageGallery({
             />
           </View>
         )}
-        {showDownloadActn && (
+        {showDownloadActn && !isMulSelectImagesEnabled && (
           <View style={styles.downloadIconContainer}>
             <DownloadIcon
               iconName={
@@ -157,9 +236,22 @@ function ImageGallery({
             />
           </View>
         )}
-        <View style={styles.shareIconContainer}>
-          <ShareBtn fileItem={item} fileType={"image/png"} />
-        </View>
+        {!isMulSelectImagesEnabled && (
+          <View style={styles.shareIconContainer}>
+            <ShareBtn
+              fileItems={[item]}
+              fileType={"image/png"}
+              setIsShareCompleted={setIsShareCompleted}
+            />
+          </View>
+        )}
+        <CheckBoxItem
+          fileUri={item}
+          isMulSelectImagesEnabled={isMulSelectImagesEnabled}
+          onPressHandler={selectImage.bind(this, item)}
+          isFileSelecetd={isFileSelected(item)}
+          checkBoxContainerStyle={styles.checkBoxContainer}
+        />
       </View>
     );
   };
@@ -222,6 +314,13 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
   },
+  headerShareIconContainer: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    marginRight: 10,
+    flexDirection: "row",
+  },
   downloadIconContainer: {
     width: 30,
     height: 30,
@@ -232,6 +331,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "95%",
     left: "70%",
+    transform: [{ translateX: -22 }, { translateY: -22 }],
+    elevation: 6,
+  },
+  checkBoxContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "10%",
+    left: "90%",
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
   },

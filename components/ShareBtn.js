@@ -4,17 +4,23 @@ import { StyleSheet } from "react-native";
 import * as RNFS from "react-native-fs";
 import Share from "react-native-share";
 
-function ShareBtn({ fileItem, fileType }) {
+function ShareBtn({ fileItems, fileType, setIsShareCompleted }) {
   const shareItem = async () => {
     try {
-      console.log("shareItem called");
-      const base64Image = await RNFS.readFile(fileItem, "base64");
+      setIsShareCompleted(false);
+      const result = await Promise.all(
+        fileItems.map(async (item) => {
+          const base64Image = await RNFS.readFile(item, "base64");
+          const url = `data:${fileType};base64,${base64Image}`;
+          return url;
+        })
+      );
       const shareOptions = {
-        url: `data:${fileType};base64,${base64Image}`,
-        type: `${fileType}`,
+        type: fileType,
+        urls: result,
       };
-      const shareResponse = await Share.open(shareOptions);
-      console.log("shareResponse", shareResponse);
+      Share.open(shareOptions);
+      setIsShareCompleted(true);
     } catch (error) {
       console.log(error);
     }
@@ -25,7 +31,7 @@ function ShareBtn({ fileItem, fileType }) {
       onPress={shareItem}
       style={({ pressed }) => pressed && styles.pressed}
     >
-      <Entypo name="share" size={24} color="#f03709"></Entypo>
+      <Entypo name="share" size={22} color="#f03709"></Entypo>
     </Pressable>
   );
 }

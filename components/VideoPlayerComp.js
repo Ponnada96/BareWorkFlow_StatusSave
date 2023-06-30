@@ -50,7 +50,6 @@ function VideoPlayerComp({ route, navigation }) {
         if (data != null && data.length > 0) {
           setFavorites(JSON.parse(data));
         }
-        console.log("fa", data);
       };
       getFavourites();
     }
