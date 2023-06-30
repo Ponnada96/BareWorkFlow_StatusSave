@@ -108,17 +108,6 @@ function ImageGallery({
     );
     return selImages;
   };
-
-  // if (isMulSelectImagesEnabled) {
-  //   useEffect(() => {
-  //     navigation.getParent().setOptions({
-  //       // headerRight: () => (
-  //       //   <ShareBtn fileItems={selectedImages} fileType={"image/png"} />
-  //       // ),
-  //     });
-  //   }, [selectedImages]);
-  // }
-
   useEffect(() => {
     const updateFavourites = async () => {
       await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
