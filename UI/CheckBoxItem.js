@@ -2,12 +2,12 @@ import { View, Pressable, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 function CheckBoxItem({
-  isMulSelectImagesEnabled,
+  isMulSelectEnabled,
   onPressHandler,
   isFileSelecetd,
   checkBoxContainerStyle,
 }) {
-  if (isMulSelectImagesEnabled) {
+  if (isMulSelectEnabled) {
     if (isFileSelecetd) {
       return (
         <View style={checkBoxContainerStyle}>

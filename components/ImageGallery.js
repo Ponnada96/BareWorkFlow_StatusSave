@@ -32,7 +32,7 @@ function ImageGallery({
   const isFocused = useIsFocused();
   const appDirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
   const [selectedImages, setSelectedImages] = useState([]);
-  const [isMulSelectImagesEnabled, setMulSelectImagesEnabled] = useState(false);
+  const [isMulSelectEnabled, setMulSelectEnabled] = useState(false);
   const [isShareCompleted, setIsShareCompleted] = useState(false);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ function ImageGallery({
 
   useEffect(() => {
     if (isFocused || isShareCompleted) {
-        setMulSelectImagesEnabled(false);
+        setMulSelectEnabled(false);
         setSelectedImages([]);
     }
   }, [isFocused, isShareCompleted]);
@@ -86,7 +86,7 @@ function ImageGallery({
           />
         ),
       });
-      if (isMulSelectImagesEnabled) {
+      if (isMulSelectEnabled) {
         navigation.getParent().setOptions({
           headerRight: () => (
             <View style={styles.headerShareIconContainer}>
@@ -99,7 +99,7 @@ function ImageGallery({
           ),
         });
       }
-    }, [imageURIs, isFocused, isMulSelectImagesEnabled, selectedImages]);
+    }, [imageURIs, isFocused, isMulSelectEnabled, selectedImages]);
   }
 
   const getSelecetdImages = () => {
@@ -145,10 +145,10 @@ function ImageGallery({
     styles.downloadIconContainer.left = "90%";
   }
 
-  const handleImageLongPress = (fileUri) => {
+  const handleLongPress = (fileUri) => {
     console.log("longPress");
     selectImage(fileUri);
-    setMulSelectImagesEnabled(!isMulSelectImagesEnabled);
+    setMulSelectEnabled(!isMulSelectEnabled);
   };
 
   const selectImage = (fileUri) => {
@@ -163,7 +163,7 @@ function ImageGallery({
 
   useEffect(() => {
     if (selectedImages.length === 0) {
-      setMulSelectImagesEnabled(false);
+      setMulSelectEnabled(false);
     }
   }, [selectedImages]);
 
@@ -175,20 +175,15 @@ function ImageGallery({
 
   const RenderImage = ({ item, index }) => {
     return (
-      <View
-        style={[
-          styles.container,
-          isMulSelectImagesEnabled && { opacity: 0.78 },
-        ]}
-      >
+      <View style={[styles.container, isMulSelectEnabled && { opacity: 0.78 }]}>
         <Pressable
           onPress={
-            isMulSelectImagesEnabled
+            isMulSelectEnabled
               ? selectImage.bind(this, item)
               : openGallery.bind(this, index)
           }
           style={({ pressed }) => [styles.flex, pressed && styles.pressed]}
-          onLongPress={handleImageLongPress.bind(this, item)}
+          onLongPress={handleLongPress.bind(this, item)}
         >
           <Image
             source={{ uri: item }}
@@ -196,7 +191,7 @@ function ImageGallery({
             resizeMode="cover"
           />
         </Pressable>
-        {showFavActn && !isMulSelectImagesEnabled && (
+        {showFavActn && !isMulSelectEnabled && (
           <View style={styles.favIconContainer}>
             <FavouriteIcon
               iconName={
@@ -209,7 +204,7 @@ function ImageGallery({
             />
           </View>
         )}
-        {showDownloadActn && !isMulSelectImagesEnabled && (
+        {showDownloadActn && !isMulSelectEnabled && (
           <View style={styles.downloadIconContainer}>
             <DownloadIcon
               iconName={
@@ -225,7 +220,7 @@ function ImageGallery({
             />
           </View>
         )}
-        {!isMulSelectImagesEnabled && (
+        {!isMulSelectEnabled && (
           <View style={styles.shareIconContainer}>
             <ShareBtn
               fileItems={[item]}
@@ -236,7 +231,7 @@ function ImageGallery({
         )}
         <CheckBoxItem
           fileUri={item}
-          isMulSelectImagesEnabled={isMulSelectImagesEnabled}
+          isMulSelectEnabled={isMulSelectEnabled}
           onPressHandler={selectImage.bind(this, item)}
           isFileSelecetd={isFileSelected(item)}
           checkBoxContainerStyle={styles.checkBoxContainer}
