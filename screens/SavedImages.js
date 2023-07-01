@@ -13,9 +13,12 @@ function SavedImages() {
   useEffect(() => {
     const getSavedImages = async () => {
       if (isFocused && (await RNFS.exists(appDirPath))) {
-        const folderContents = (await RNFS.readDir(appDirPath)).map(
-          (item) => `file://${item.path}`
-        );
+        const folderContents = (await RNFS.readDir(appDirPath))
+          .sort((a, b) => {
+            return new Date(b.mtime) - new Date(a.mtime);
+          })
+          .map((item) => `file://${item.path}`);
+          
         const images = folderContents.filter((url) =>
           /^(?!.*trashed-).*\.(jpe?g|png|webp)$/.test(url)
         );
@@ -35,6 +38,8 @@ function SavedImages() {
         enableHeaderActions={false}
         showDownloadActn={false}
         showFavActn={true}
+        showDelActn={true}
+        setImageURIs={setImageURIs}
       />
     </View>
   );

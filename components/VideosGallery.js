@@ -75,47 +75,45 @@ function VideosGallery({
     };
     updateFavourites();
   }, [favourites, isFocused]);
-  
-    useEffect(() => {
-      if (showHeaderActions) {
-        navigation.getParent().setOptions({
-          headerRight: () => (
-            <HeaderBtns
-              showSaveAllBtn={true}
-              saveAllHandler={SaveAllFilesHandler.bind(this, videoURIs)}
-              saveImgByIndexHandler={null}
-              isFileDownload={false}
-              displayInfoHandler={displayFileSavedToastMsg}
+
+  useEffect(() => {
+    if (showHeaderActions && !isMulSelectEnabled) {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <HeaderBtns
+            showSaveAllBtn={true}
+            saveAllHandler={SaveAllFilesHandler.bind(this, videoURIs)}
+            saveImgByIndexHandler={null}
+            isFileDownload={false}
+            displayInfoHandler={displayFileSavedToastMsg}
+          />
+        ),
+      });
+    } else if (isMulSelectEnabled) {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <View style={styles.headerShareIconContainer}>
+            <ShareBtn
+              fileItems={getSelecetdVideos()}
+              fileType={"video/mp4"}
+              setIsShareCompleted={setIsShareCompleted}
+              color={"#ffffff"}
             />
-          ),
-        });
-      }
-      if (isMulSelectEnabled) {
-        navigation.getParent().setOptions({
-          headerRight: () => (
-            <View style={styles.headerShareIconContainer}>
-              <ShareBtn
-                fileItems={getSelecetdVideos()}
-                fileType={"video/mp4"}
-                setIsShareCompleted={setIsShareCompleted}
-                color={"#ffffff"}
-              />
-            </View>
-          ),
-        });
-      }
-      else{
-        navigation.getParent().setOptions({
-          headerRight: undefined
-        });
-      }
-    }, [
-      videoURIs,
-      isFocused,
-      isMulSelectEnabled,
-      isShareCompleted,
-      selectedVideos,
-    ]);
+          </View>
+        ),
+      });
+    } else {
+      navigation.getParent().setOptions({
+        headerRight: undefined,
+      });
+    }
+  }, [
+    videoURIs,
+    isFocused,
+    isMulSelectEnabled,
+    isShareCompleted,
+    selectedVideos,
+  ]);
 
   function SaveAllFilesHandler(videoURIs) {
     SaveAllFiles(videoURIs);
@@ -285,8 +283,6 @@ function VideosGallery({
         />
       </View>
     );
-  } else {
-    return <InfoComponent>No Videos</InfoComponent>;
   }
 }
 

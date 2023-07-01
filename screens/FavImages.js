@@ -27,7 +27,7 @@ function FavImages() {
             const favImages = images.filter((item) =>
               favImgFileNames.includes(getFileNameFromPath(item))
             );
-           setFavImages(favImages);
+            setFavImages(favImages);
           }
         }
       }
@@ -45,6 +45,7 @@ function FavImages() {
         enableHeaderActions={false}
         showDownloadActn={false}
         showFavActn={true}
+        showDelActn={true}
       />
     </View>
   );

@@ -37,6 +37,7 @@ function Images() {
         enableHeaderActions={true}
         showDownloadActn={true}
         showFavActn={false}
+        showDelActn={false}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { Pressable } from "react-native";
 import { StyleSheet, Image, FlatList, View } from "react-native";
 import { useEffect } from "react";
@@ -19,12 +19,16 @@ import {
 import DownloadIcon from "../UI/DownloadIcon";
 import ShareBtn from "./ShareBtn";
 import CheckBoxItem from "../UI/CheckBoxItem";
+import InfoComponent from "./InfoComponent";
+import DeleteIcon from "../UI/DeleteIcon";
 
 function ImageGallery({
   imageURIs,
   enableHeaderActions,
   showFavActn,
   showDownloadActn,
+  showDelActn,
+  setImageURIs,
 }) {
   const navigation = useNavigation();
   const [favourites, setFavorites] = useState([]);
@@ -50,8 +54,8 @@ function ImageGallery({
 
   useEffect(() => {
     if (isFocused || isShareCompleted) {
-        setMulSelectEnabled(false);
-        setSelectedImages([]);
+      setMulSelectEnabled(false);
+      setSelectedImages([]);
     }
   }, [isFocused, isShareCompleted]);
 
@@ -72,38 +76,39 @@ function ImageGallery({
     }
   }, [isFocused]);
 
-  
-    useEffect(() => {
-      if (enableHeaderActions) {
-        navigation.getParent().setOptions({
-          headerRight: () => (
-            <HeaderBtns
-              showSaveAllBtn={true}
-              saveAllHandler={SaveAllFilesHandler.bind(this, imageURIs)}
-              saveImgByIndexHandler={null}
-              isFileDownload={false}
-              displayInfoHandler={displayFileSavedToastMsg}
-              showShareBtnActn={false}
+  useEffect(() => {
+    if (enableHeaderActions && !isMulSelectEnabled) {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <HeaderBtns
+            showSaveAllBtn={true}
+            saveAllHandler={SaveAllFilesHandler.bind(this, imageURIs)}
+            saveImgByIndexHandler={null}
+            isFileDownload={false}
+            displayInfoHandler={displayFileSavedToastMsg}
+            showShareBtnActn={false}
+          />
+        ),
+      });
+    } else if (isMulSelectEnabled) {
+      navigation.getParent().setOptions({
+        headerRight: () => (
+          <View style={styles.headerShareIconContainer}>
+            <ShareBtn
+              fileItems={getSelecetdImages()}
+              fileType={"image/png"}
+              setIsShareCompleted={setIsShareCompleted}
+              color={"#FFFFFF"}
             />
-          ),
-        });
-      }
-      if (isMulSelectEnabled) {
-        navigation.getParent().setOptions({
-          headerRight: () => (
-            <View style={styles.headerShareIconContainer}>
-              <ShareBtn
-                fileItems={getSelecetdImages()}
-                fileType={"image/png"}
-                setIsShareCompleted={setIsShareCompleted}
-                color={"#FFFFFF"}
-              />
-            </View>
-          ),
-        });
-      }
-    }, [imageURIs, isFocused, isMulSelectEnabled, selectedImages]);
-  
+          </View>
+        ),
+      });
+    } else {
+      navigation.getParent().setOptions({
+        headerRight: undefined,
+      });
+    }
+  }, [imageURIs, isFocused, isMulSelectEnabled, selectedImages]);
 
   const getSelecetdImages = () => {
     const selImages = imageURIs.filter((item) =>
@@ -111,6 +116,7 @@ function ImageGallery({
     );
     return selImages;
   };
+  
   useEffect(() => {
     const updateFavourites = async () => {
       await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
@@ -176,6 +182,25 @@ function ImageGallery({
     return isExists;
   };
 
+  const deleteSelectedItem = async (fileUri, index) => {
+    const fileName = getFileNameFromPath(fileUri);
+    const fileFullPath = appDirPath + "/" + fileName;
+    if (favourites.includes(fileName)) {
+      const itemIndex = favourites.indexOf(fileName);
+      if (itemIndex > -1) {
+        favourites.splice(itemIndex, 1);
+        setFavorites([...favourites]);
+      }
+    }
+    await RNFS.unlink(fileFullPath);
+    await RNFS.scanFile(fileFullPath);
+    setImageURIs(
+      imageURIs.filter((item) => getFileNameFromPath(item) !== fileName)
+    );
+  };
+
+  if (imageURIs.length === 0) return <InfoComponent>No Images</InfoComponent>;
+
   const RenderImage = ({ item, index }) => {
     return (
       <View style={[styles.container, isMulSelectEnabled && { opacity: 0.78 }]}>
@@ -233,6 +258,13 @@ function ImageGallery({
             />
           </View>
         )}
+        {showDelActn && !isMulSelectEnabled && (
+          <View style={styles.deleteIconContainer}>
+            <DeleteIcon
+              onPressHandler={deleteSelectedItem.bind(this, item, index)}
+            />
+          </View>
+        )}
         <CheckBoxItem
           fileUri={item}
           isMulSelectEnabled={isMulSelectEnabled}
@@ -275,7 +307,9 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius: 20,
     height: 240,
+    maxWidth: "46.2%",
   },
+
   favIconContainer: {
     width: 30,
     height: 30,
@@ -299,6 +333,19 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "95%",
     left: "70%",
+    transform: [{ translateX: -22 }, { translateY: -22 }],
+    elevation: 6,
+  },
+  deleteIconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "95%",
+    left: "16%",
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
   },
