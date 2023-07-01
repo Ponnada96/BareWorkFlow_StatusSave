@@ -104,7 +104,11 @@ function VideoPlayerComp({ route, navigation }) {
               />
             </View>
             <View>
-              <ShareBtn fileType={"video/mp4"} fileItem={videoUri} />
+              <ShareBtn
+                fileType={"video/mp4"}
+                fileItem={videoUri}
+                color={"#f03709"}
+              />
             </View>
           </View>
         ),

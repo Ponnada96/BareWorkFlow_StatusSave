@@ -48,7 +48,11 @@ function HeaderBtns({
       ) : null}
 
       {showShareBtnActn && (
-        <ShareBtn fileType={shareItemFileType} fileItem={fileItem} />
+        <ShareBtn
+          fileType={shareItemFileType}
+          fileItems={[fileItem]}
+          color={"#f03709"}
+        />
       )}
     </View>
   );

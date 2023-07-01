@@ -134,7 +134,8 @@ function ImageSlides({ route, navigation }) {
               <View style={{ marginRight: 4 }}>
                 <ShareBtn
                   fileType={"image/png"}
-                  fileItem={imageURIs[selectedIndex]}
+                  fileItems={[imageURIs[selectedIndex]]}
+                  color={"#f03709"}
                 />
               </View>
             </View>

@@ -72,20 +72,22 @@ function ImageGallery({
     }
   }, [isFocused]);
 
-  if (enableHeaderActions) {
+  
     useEffect(() => {
-      navigation.getParent().setOptions({
-        headerRight: () => (
-          <HeaderBtns
-            showSaveAllBtn={true}
-            saveAllHandler={SaveAllFilesHandler.bind(this, imageURIs)}
-            saveImgByIndexHandler={null}
-            isFileDownload={false}
-            displayInfoHandler={displayFileSavedToastMsg}
-            showShareBtnActn={false}
-          />
-        ),
-      });
+      if (enableHeaderActions) {
+        navigation.getParent().setOptions({
+          headerRight: () => (
+            <HeaderBtns
+              showSaveAllBtn={true}
+              saveAllHandler={SaveAllFilesHandler.bind(this, imageURIs)}
+              saveImgByIndexHandler={null}
+              isFileDownload={false}
+              displayInfoHandler={displayFileSavedToastMsg}
+              showShareBtnActn={false}
+            />
+          ),
+        });
+      }
       if (isMulSelectEnabled) {
         navigation.getParent().setOptions({
           headerRight: () => (
@@ -94,13 +96,14 @@ function ImageGallery({
                 fileItems={getSelecetdImages()}
                 fileType={"image/png"}
                 setIsShareCompleted={setIsShareCompleted}
+                color={"#FFFFFF"}
               />
             </View>
           ),
         });
       }
     }, [imageURIs, isFocused, isMulSelectEnabled, selectedImages]);
-  }
+  
 
   const getSelecetdImages = () => {
     const selImages = imageURIs.filter((item) =>
@@ -226,6 +229,7 @@ function ImageGallery({
               fileItems={[item]}
               fileType={"image/png"}
               setIsShareCompleted={setIsShareCompleted}
+              color={"#f03709"}
             />
           </View>
         )}

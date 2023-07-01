@@ -75,20 +75,21 @@ function VideosGallery({
     };
     updateFavourites();
   }, [favourites, isFocused]);
-
-  if (showHeaderActions) {
+  
     useEffect(() => {
-      navigation.getParent().setOptions({
-        headerRight: () => (
-          <HeaderBtns
-            showSaveAllBtn={true}
-            saveAllHandler={SaveAllFilesHandler.bind(this, videoURIs)}
-            saveImgByIndexHandler={null}
-            isFileDownload={false}
-            displayInfoHandler={displayFileSavedToastMsg}
-          />
-        ),
-      });
+      if (showHeaderActions) {
+        navigation.getParent().setOptions({
+          headerRight: () => (
+            <HeaderBtns
+              showSaveAllBtn={true}
+              saveAllHandler={SaveAllFilesHandler.bind(this, videoURIs)}
+              saveImgByIndexHandler={null}
+              isFileDownload={false}
+              displayInfoHandler={displayFileSavedToastMsg}
+            />
+          ),
+        });
+      }
       if (isMulSelectEnabled) {
         navigation.getParent().setOptions({
           headerRight: () => (
@@ -97,13 +98,24 @@ function VideosGallery({
                 fileItems={getSelecetdVideos()}
                 fileType={"video/mp4"}
                 setIsShareCompleted={setIsShareCompleted}
+                color={"#ffffff"}
               />
             </View>
           ),
         });
       }
-    }, [videoURIs, isFocused, isMulSelectEnabled, selectedVideos]);
-  }
+      else{
+        navigation.getParent().setOptions({
+          headerRight: undefined
+        });
+      }
+    }, [
+      videoURIs,
+      isFocused,
+      isMulSelectEnabled,
+      isShareCompleted,
+      selectedVideos,
+    ]);
 
   function SaveAllFilesHandler(videoURIs) {
     SaveAllFiles(videoURIs);
@@ -240,6 +252,7 @@ function VideosGallery({
               fileItems={[item]}
               fileType={"video/mp4"}
               setIsShareCompleted={setIsShareCompleted}
+              color={"#f03709"}
             />
           </View>
         )}
