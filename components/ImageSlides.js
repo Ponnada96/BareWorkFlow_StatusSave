@@ -111,35 +111,33 @@ function ImageSlides({ route, navigation }) {
     useEffect(() => {
       navigation.setOptions({
         headerRight: () => (
-          <>
-            <View style={styles.actionContainer}>
-              <View style={{ marginHorizontal: 10 }}>
-                <FavouriteIcon
-                  iconName={
-                    favourites.includes(
-                      getFileNameFromPath(imageURIs[selectedIndex])
-                    )
-                      ? "favorite"
-                      : "favorite-border"
-                  }
-                  size={26}
-                  onPressHandler={markFileAsFavourite.bind(
-                    this,
-                    imageURIs[selectedIndex],
-                    favourites,
-                    setFavorites
-                  )}
-                />
-              </View>
-              <View style={{ marginRight: 4 }}>
-                <ShareBtn
-                  fileType={"image/png"}
-                  fileItems={[imageURIs[selectedIndex]]}
-                  color={"#f03709"}
-                />
-              </View>
+          <View style={styles.actionContainer}>
+            <View style={{ marginHorizontal: 10 }}>
+              <FavouriteIcon
+                iconName={
+                  favourites.includes(
+                    getFileNameFromPath(imageURIs[selectedIndex])
+                  )
+                    ? "favorite"
+                    : "favorite-border"
+                }
+                size={26}
+                onPressHandler={markFileAsFavourite.bind(
+                  this,
+                  imageURIs[selectedIndex],
+                  favourites,
+                  setFavorites
+                )}
+              />
             </View>
-          </>
+            <View style={{ marginRight: 4 }}>
+              <ShareBtn
+                fileType={"image/png"}
+                fileItems={[imageURIs[selectedIndex]]}
+                color={"#f03709"}
+              />
+            </View>
+          </View>
         ),
       });
     }, [selectedIndex, favourites]);

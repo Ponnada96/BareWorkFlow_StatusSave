@@ -38,6 +38,7 @@ function ImageGallery({
   const [selectedImages, setSelectedImages] = useState([]);
   const [isMulSelectEnabled, setMulSelectEnabled] = useState(false);
   const [isShareCompleted, setIsShareCompleted] = useState(false);
+  const [deletedFiles, setDeletedFiles] = useState([]);
 
   useEffect(() => {
     if (isFocused) {
@@ -93,13 +94,23 @@ function ImageGallery({
     } else if (isMulSelectEnabled) {
       navigation.getParent().setOptions({
         headerRight: () => (
-          <View style={styles.headerShareIconContainer}>
-            <ShareBtn
-              fileItems={getSelecetdImages()}
-              fileType={"image/png"}
-              setIsShareCompleted={setIsShareCompleted}
-              color={"#FFFFFF"}
-            />
+          <View style={styles.actionContainer}>
+            <View style={{ marginHorizontal: 10 }}>
+              <ShareBtn
+                fileItems={getSelecetdImages()}
+                fileType={"image/png"}
+                setIsShareCompleted={setIsShareCompleted}
+                color={"#FFFFFF"}
+              />
+            </View>
+            {showDelActn && (
+              <View style={{ marginRight: 4 }}>
+                <DeleteIcon
+                  onPressHandler={deleteSelectedItems}
+                  color={"#ffffff"}
+                />
+              </View>
+            )}
           </View>
         ),
       });
@@ -116,13 +127,26 @@ function ImageGallery({
     );
     return selImages;
   };
-  
+
   useEffect(() => {
     const updateFavourites = async () => {
       await AsyncStorage.setItem("favImages", JSON.stringify(favourites));
     };
     updateFavourites();
   }, [favourites]);
+
+  const deleteSelectedItems = async () => {
+    try {
+      const deletableFiles = getSelecetdImages();
+      console.log(deletableFiles);
+      for (i = 0; i < deletableFiles.length; i++) {
+        await deleteSelectedItem(deletableFiles[i]);
+      }
+      setSelectedImages([]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   async function saveImage(uri, showToastMsg) {
     await SaveFile(uri);
@@ -182,9 +206,21 @@ function ImageGallery({
     return isExists;
   };
 
+  useEffect(() => {
+    deletedFiles.map((fileName) => {
+      setImageURIs(
+        imageURIs.filter((item) => getFileNameFromPath(item) !== fileName)
+      );
+    });
+  }, [deletedFiles]);
+
   const deleteSelectedItem = async (fileUri, index) => {
     const fileName = getFileNameFromPath(fileUri);
     const fileFullPath = appDirPath + "/" + fileName;
+
+    await RNFS.unlink(fileFullPath);
+    await RNFS.scanFile(fileFullPath);
+    setDeletedFiles((items) => [...items, fileName]);
     if (favourites.includes(fileName)) {
       const itemIndex = favourites.indexOf(fileName);
       if (itemIndex > -1) {
@@ -192,15 +228,11 @@ function ImageGallery({
         setFavorites([...favourites]);
       }
     }
-    await RNFS.unlink(fileFullPath);
-    await RNFS.scanFile(fileFullPath);
-    setImageURIs(
-      imageURIs.filter((item) => getFileNameFromPath(item) !== fileName)
-    );
+    console.log("imageURIs", imageURIs);
   };
 
   if (imageURIs.length === 0) return <InfoComponent>No Images</InfoComponent>;
-
+  console.log("imageURIs.legth", imageURIs.length);
   const RenderImage = ({ item, index }) => {
     return (
       <View style={[styles.container, isMulSelectEnabled && { opacity: 0.78 }]}>
@@ -262,6 +294,7 @@ function ImageGallery({
           <View style={styles.deleteIconContainer}>
             <DeleteIcon
               onPressHandler={deleteSelectedItem.bind(this, item, index)}
+              color={"#f03709"}
             />
           </View>
         )}
@@ -392,5 +425,10 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  actionContainer: {
+    alignItems: "center",
+    marginRight: 10,
+    flexDirection: "row",
   },
 });
