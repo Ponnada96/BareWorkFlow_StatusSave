@@ -14,6 +14,7 @@ import {
   SaveFile,
   markFileAsFavourite,
   isFileExistsInSystem,
+  deleteSelectedItemHandler,
 } from "./Common/Utils";
 import FavouriteIcon from "../UI/FavouriteIcon";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -21,14 +22,17 @@ import * as RNFS from "react-native-fs";
 import DownloadIcon from "../UI/DownloadIcon";
 import ShareBtn from "./ShareBtn";
 import CheckBoxItem from "../UI/CheckBoxItem";
+import DeleteIcon from "../UI/DeleteIcon";
 
 const height = Dimensions.get("window").height;
 
 function VideosGallery({
   videoURIs,
+  setVideoURIs,
   showHeaderActions,
   showFavActn,
   showDownloadActn,
+  showDelActn,
 }) {
   const navigation = useNavigation();
   const [favourites, setFavorites] = useState([]);
@@ -38,6 +42,7 @@ function VideosGallery({
   const [isMulSelectEnabled, setMulSelectEnabled] = useState(false);
   const [isShareCompleted, setIsShareCompleted] = useState(false);
   const [selectedVideos, setSelectedVideos] = useState([]);
+  const [deletedFiles, setDeletedFiles] = useState([]);
 
   useEffect(() => {
     const getFavourites = async () => {
@@ -69,9 +74,7 @@ function VideosGallery({
 
   useEffect(() => {
     const updateFavourites = async () => {
-      if (isFocused) {
-        await AsyncStorage.setItem("favVideos", JSON.stringify(favourites));
-      }
+      await AsyncStorage.setItem("favVideos", JSON.stringify(favourites));
     };
     updateFavourites();
   }, [favourites, isFocused]);
@@ -92,13 +95,23 @@ function VideosGallery({
     } else if (isMulSelectEnabled) {
       navigation.getParent().setOptions({
         headerRight: () => (
-          <View style={styles.headerShareIconContainer}>
-            <ShareBtn
-              fileItems={getSelecetdVideos()}
-              fileType={"video/mp4"}
-              setIsShareCompleted={setIsShareCompleted}
-              color={"#ffffff"}
-            />
+          <View style={styles.actionContainer}>
+            <View style={{ marginHorizontal: 10 }}>
+              <ShareBtn
+                fileItems={getSelecetdVideos()}
+                fileType={"video/mp4"}
+                setIsShareCompleted={setIsShareCompleted}
+                color={"#ffffff"}
+              />
+            </View>
+            {showDelActn && (
+              <View style={{ marginRight: 4 }}>
+                <DeleteIcon
+                  onPressHandler={deleteSelectedItems}
+                  color={"#ffffff"}
+                />
+              </View>
+            )}
           </View>
         ),
       });
@@ -111,7 +124,6 @@ function VideosGallery({
     videoURIs,
     isFocused,
     isMulSelectEnabled,
-    isShareCompleted,
     selectedVideos,
   ]);
 
@@ -166,7 +178,6 @@ function VideosGallery({
   }, [selectedVideos]);
 
   const handleLongPress = (fileUri) => {
-    console.log("longPress");
     selectVideo(fileUri);
     setMulSelectEnabled(!isMulSelectEnabled);
   };
@@ -185,6 +196,37 @@ function VideosGallery({
     const fileName = getFileNameFromPath(fileUri);
     const isExists = selectedVideos.includes(fileName);
     return isExists;
+  };
+
+  useEffect(() => {
+    deletedFiles.map((fileName) => {
+      setVideoURIs(
+        videoURIs.filter((item) => getFileNameFromPath(item) !== fileName)
+      );
+    });
+  }, [deletedFiles]);
+
+   const deleteSelectedItems = async () => {
+     try {
+       const deletableFiles = getSelecetdVideos();
+       for (i = 0; i < deletableFiles.length; i++) {
+         await deleteSelectedItem(deletableFiles[i]);
+       }
+       setSelectedVideos([]);
+     } catch (error) {
+       console.log(error);
+     }
+   };
+
+  const deleteSelectedItem = async (fileUri, index) => {
+    await deleteSelectedItemHandler(
+      fileUri,
+      index,
+      setDeletedFiles,
+      favourites,
+      setFavorites,
+      appDirPath
+    );
   };
 
   const renderVideoThumbnail = ({ item, _ }) => {
@@ -250,6 +292,14 @@ function VideosGallery({
               fileItems={[item]}
               fileType={"video/mp4"}
               setIsShareCompleted={setIsShareCompleted}
+              color={"#f03709"}
+            />
+          </View>
+        )}
+        {showDelActn && !isMulSelectEnabled && (
+          <View style={styles.deleteIconContainer}>
+            <DeleteIcon
+              onPressHandler={deleteSelectedItem.bind(this, item, _)}
               color={"#f03709"}
             />
           </View>
@@ -338,6 +388,19 @@ const styles = StyleSheet.create({
     transform: [{ translateX: -30 }, { translateY: -30 }],
     elevation: 6,
   },
+  deleteIconContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    position: "absolute",
+    top: "98%",
+    left: "10%",
+    transform: [{ translateX: -30 }, { translateY: -30 }],
+    elevation: 6,
+  },
   shareIconContainer: {
     width: 30,
     height: 30,
@@ -367,6 +430,11 @@ const styles = StyleSheet.create({
   headerShareIconContainer: {
     width: 30,
     height: 30,
+    alignItems: "center",
+    marginRight: 10,
+    flexDirection: "row",
+  },
+  actionContainer: {
     alignItems: "center",
     marginRight: 10,
     flexDirection: "row",

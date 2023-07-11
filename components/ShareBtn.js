@@ -8,7 +8,6 @@ function ShareBtn({ fileItems, fileType, setIsShareCompleted, color }) {
   const shareItem = async () => {
     try {
       setIsShareCompleted != null && setIsShareCompleted(false);
-      console.log(fileItems);
       const result = await Promise.all(
         fileItems.map(async (item) => {
           const base64Image = await RNFS.readFile(item, "base64");
