@@ -68,3 +68,27 @@ export function getFileNameFromPath(fileUri) {
     return fileUri.replace(/^.*(\\|\/|\:)/, "");
   }
 }
+
+
+ export async function deleteSelectedItemHandler(
+   fileUri,
+   index,
+   setDeletedFiles,
+   favourites,
+   setFavorites,
+   appDirPath
+ ) {
+   const fileName = getFileNameFromPath(fileUri);
+   const fileFullPath = appDirPath + "/" + fileName;
+
+   await RNFS.unlink(fileFullPath);
+   await RNFS.scanFile(fileFullPath);
+   setDeletedFiles((items) => [...items, fileName]);
+   if (favourites.includes(fileName)) {
+     const itemIndex = favourites.indexOf(fileName);
+     if (itemIndex > -1) {
+       favourites.splice(itemIndex, 1);
+       setFavorites([...favourites]);
+     }
+   }
+ };

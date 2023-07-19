@@ -21,7 +21,7 @@ function FavImages() {
             return new Date(b.mtime) - new Date(a.mtime);
           })
           .map((item) => `file://${item.path}`);
-          
+
         const images = folderContents.filter((url) =>
           /^(?!.*trashed-).*\.(jpe?g|png|webp)$/.test(url)
         );
@@ -34,7 +34,6 @@ function FavImages() {
   useEffect(() => {
     const getFavImages = async () => {
       if (imageURIs.length > 0) {
-        console.log("imageURIs");
         const favImgFileNames = await AsyncStorage.getItem("favImages");
         if (favImgFileNames != null && favImgFileNames.length > 0) {
           const favImages = imageURIs.filter((item) =>
@@ -49,12 +48,8 @@ function FavImages() {
     getFavImages();
   }, [imageURIs]);
 
-
-
   if (favImages.length == 0)
     return <InfoComponent>No Favourite Images</InfoComponent>;
-  
-  console.log("favImages.length", favImages.length);
   return (
     <View>
       <ImageGallery
@@ -63,6 +58,7 @@ function FavImages() {
         showDownloadActn={false}
         showFavActn={true}
         showDelActn={true}
+        setImageURIs={setImageURIs}
       />
     </View>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StorageAccessFramework } from "expo-file-system";
 import VideosGallery from "../components/VideosGallery";
+import InfoComponent from "../components/InfoComponent";
 
 function Videos() {
   const [videoUris, setVideoURIs] = useState([]);
@@ -22,6 +23,9 @@ function Videos() {
     };
     getVideos();
   }, [isFocused]);
+
+   if (videoUris.length == 0)
+     return <InfoComponent>No videos to download!</InfoComponent>;
 
   return (
     <View>

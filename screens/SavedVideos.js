@@ -25,16 +25,18 @@ function SavedVideos() {
     getSavedVideos();
   }, [isFocused]);
 
-   if (videoUris.length == 0)
-     return <InfoComponent>No Saved Videos</InfoComponent>;
+  if (videoUris.length == 0)
+    return <InfoComponent>No Saved Videos</InfoComponent>;
 
   return (
     <View>
       <VideosGallery
         videoURIs={videoUris}
+        setVideoURIs={setVideoUris}
         showHeaderActions={false}
         showDownloadActn={false}
         showFavActn={true}
+        showDelActn={true}
       />
     </View>
   );

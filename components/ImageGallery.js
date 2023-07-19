@@ -15,6 +15,7 @@ import {
   displayFileSavedToastMsg,
   SaveAllFiles,
   isFileExistsInSystem,
+  deleteSelectedItemHandler,
 } from "./Common/Utils";
 import DownloadIcon from "../UI/DownloadIcon";
 import ShareBtn from "./ShareBtn";
@@ -138,7 +139,6 @@ function ImageGallery({
   const deleteSelectedItems = async () => {
     try {
       const deletableFiles = getSelecetdImages();
-      console.log(deletableFiles);
       for (i = 0; i < deletableFiles.length; i++) {
         await deleteSelectedItem(deletableFiles[i]);
       }
@@ -179,7 +179,6 @@ function ImageGallery({
   }
 
   const handleLongPress = (fileUri) => {
-    console.log("longPress");
     selectImage(fileUri);
     setMulSelectEnabled(!isMulSelectEnabled);
   };
@@ -215,24 +214,17 @@ function ImageGallery({
   }, [deletedFiles]);
 
   const deleteSelectedItem = async (fileUri, index) => {
-    const fileName = getFileNameFromPath(fileUri);
-    const fileFullPath = appDirPath + "/" + fileName;
-
-    await RNFS.unlink(fileFullPath);
-    await RNFS.scanFile(fileFullPath);
-    setDeletedFiles((items) => [...items, fileName]);
-    if (favourites.includes(fileName)) {
-      const itemIndex = favourites.indexOf(fileName);
-      if (itemIndex > -1) {
-        favourites.splice(itemIndex, 1);
-        setFavorites([...favourites]);
-      }
-    }
-    console.log("imageURIs", imageURIs);
+    await deleteSelectedItemHandler(
+      fileUri,
+      index,
+      setDeletedFiles,
+      favourites,
+      setFavorites,
+      appDirPath
+    );
   };
 
   if (imageURIs.length === 0) return <InfoComponent>No Images</InfoComponent>;
-  console.log("imageURIs.legth", imageURIs.length);
   const RenderImage = ({ item, index }) => {
     return (
       <View style={[styles.container, isMulSelectEnabled && { opacity: 0.78 }]}>
@@ -381,13 +373,6 @@ const styles = StyleSheet.create({
     left: "16%",
     transform: [{ translateX: -22 }, { translateY: -22 }],
     elevation: 6,
-  },
-  headerShareIconContainer: {
-    width: 30,
-    height: 30,
-    alignItems: "center",
-    marginRight: 10,
-    flexDirection: "row",
   },
   downloadIconContainer: {
     width: 30,

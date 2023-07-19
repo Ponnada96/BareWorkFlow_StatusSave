@@ -28,7 +28,7 @@ function Images() {
   }, [isFocused]);
 
   if (imageURIs.length == 0)
-    return <InfoComponent>No Saved Images</InfoComponent>;
+    return <InfoComponent>No images to download!</InfoComponent>;
 
   return (
     <View>

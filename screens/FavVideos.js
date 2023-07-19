@@ -9,32 +9,46 @@ import ImageGallery from "../components/ImageGallery";
 import VideosGallery from "../components/VideosGallery";
 
 function FavVideos() {
+  const [videoURIs, setvideoURIs] = useState([]);
   const [favVideos, setFavVideos] = useState([]);
   const isFocused = useIsFocused();
   const appDirPath = `${RNFS.PicturesDirectoryPath}/StatusSave`;
 
   useEffect(() => {
-    const getFavVideos = async () => {
+    const getSavedVideos = async () => {
       if (isFocused && (await RNFS.exists(appDirPath))) {
-        const folderContents = (await RNFS.readDir(appDirPath)).map(
-          (item) => `file://${item.path}`
-        );
+        const folderContents = (await RNFS.readDir(appDirPath))
+          .sort((a, b) => {
+            return new Date(b.mtime) - new Date(a.mtime);
+          })
+          .map((item) => `file://${item.path}`);
+
         const videos = folderContents.filter((url) =>
           /^(?!.*trashed-).*\.(mp4)$/.test(url)
         );
-        if (videos.length > 0) {
-          const favVideoFileNames = await AsyncStorage.getItem("favVideos");
-          if (favVideoFileNames != null && favVideoFileNames.length > 0) {
-            const favImages = videos.filter((item) =>
-              favVideoFileNames.includes(getFileNameFromPath(item))
-            );
-            setFavVideos(favImages);
-          }
+
+        setvideoURIs(videos);
+      }
+    };
+    getSavedVideos();
+  }, [isFocused]);
+
+  useEffect(() => {
+    const getFavVideos = async () => {
+      if (videoURIs.length > 0) {
+        const favVideoFileNames = await AsyncStorage.getItem("favVideos");
+        if (favVideoFileNames != null && favVideoFileNames.length > 0) {
+          const favVideos = videoURIs.filter((item) =>
+            favVideoFileNames.includes(getFileNameFromPath(item))
+          );
+          setFavVideos(favVideos);
         }
+      } else {
+        setFavVideos([]);
       }
     };
     getFavVideos();
-  }, [isFocused]);
+  }, [videoURIs]);
 
   if (favVideos.length == 0)
     return <InfoComponent>No Favourite Videos</InfoComponent>;
@@ -43,9 +57,11 @@ function FavVideos() {
     <View>
       <VideosGallery
         videoURIs={favVideos}
+        setVideoURIs={setFavVideos}
         enableHeaderActions={false}
         showDownloadActn={false}
         showFavActn={true}
+        showDelActn={true}
       />
     </View>
   );
